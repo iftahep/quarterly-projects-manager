@@ -1,84 +1,298 @@
 import { useState } from 'react'
 
-// Mock data for projects
-const mockProjects = [
-  {
-    id: 1,
-    name: 'Website Redesign',
-    quarter: 'Q1 2024',
-    status: 'In Progress',
-    progress: 65,
-    startDate: '2024-01-15',
-    endDate: '2024-03-31',
-    team: 'Frontend Team'
-  },
-  {
-    id: 2,
-    name: 'Mobile App Development',
-    quarter: 'Q1 2024',
-    status: 'Planning',
-    progress: 20,
-    startDate: '2024-02-01',
-    endDate: '2024-04-30',
-    team: 'Mobile Team'
-  },
-  {
-    id: 3,
-    name: 'API Integration',
-    quarter: 'Q1 2024',
-    status: 'Completed',
-    progress: 100,
-    startDate: '2024-01-01',
-    endDate: '2024-01-31',
-    team: 'Backend Team'
-  },
-  {
-    id: 4,
-    name: 'Database Migration',
-    quarter: 'Q2 2024',
-    status: 'Not Started',
-    progress: 0,
-    startDate: '2024-04-01',
-    endDate: '2024-06-30',
-    team: 'DevOps Team'
-  },
-  {
-    id: 5,
-    name: 'Security Audit',
-    quarter: 'Q1 2024',
-    status: 'In Progress',
-    progress: 45,
-    startDate: '2024-02-15',
-    endDate: '2024-03-15',
-    team: 'Security Team'
-  }
-]
+const OWNER_OPTIONS = ['Oren', 'Shchory', 'Bar', 'Ben', 'Ohad', 'Ronen', 'Jenny', 'Aharoni', 'Rick']
+const TECH_OWNER_OPTIONS = ['Vitaly', 'Stas', 'Semyon', 'Dzimtry', 'Kirill', 'Shalom', 'Aharoni', 'Jenny']
 
 function Dashboard() {
-  const [projects] = useState(mockProjects)
+  // Initialize sprint capacity tables state
+  const [backendSprints, setBackendSprints] = useState([
+    { id: 1, name: 'Sprint 1', capacity: '' },
+    { id: 2, name: 'Sprint 2', capacity: '' }
+  ])
+  const [androidSprints, setAndroidSprints] = useState([
+    { id: 1, name: 'Sprint 1', capacity: '' },
+    { id: 2, name: 'Sprint 2', capacity: '' }
+  ])
+  const [iosSprints, setIosSprints] = useState([
+    { id: 1, name: 'Sprint 1', capacity: '' },
+    { id: 2, name: 'Sprint 2', capacity: '' }
+  ])
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'Completed':
-        return 'bg-green-100 text-green-800'
-      case 'In Progress':
-        return 'bg-blue-100 text-blue-800'
-      case 'Planning':
-        return 'bg-yellow-100 text-yellow-800'
-      case 'Not Started':
-        return 'bg-gray-100 text-gray-800'
-      default:
-        return 'bg-gray-100 text-gray-800'
+
+  // Initialize sprint allocations for a project
+  const initializeSprintAllocations = () => {
+    const allocations = {}
+    backendSprints.forEach(sprint => {
+      allocations[`backend_${sprint.id}`] = ''
+    })
+    androidSprints.forEach(sprint => {
+      allocations[`android_${sprint.id}`] = ''
+    })
+    iosSprints.forEach(sprint => {
+      allocations[`ios_${sprint.id}`] = ''
+    })
+    return allocations
+  }
+
+  const [projects, setProjects] = useState(() => {
+    const initialSprints = [
+      { id: 1, name: 'Sprint 1', capacity: '' },
+      { id: 2, name: 'Sprint 2', capacity: '' }
+    ]
+    const allocations = {}
+    initialSprints.forEach(sprint => {
+      allocations[`backend_${sprint.id}`] = ''
+      allocations[`android_${sprint.id}`] = ''
+      allocations[`ios_${sprint.id}`] = ''
+    })
+    return [{
+      id: 1,
+      epic: '',
+      owner: '',
+      techOwner: '',
+      backend: '',
+      android: '',
+      ios: '',
+      ...allocations
+    }]
+  })
+
+
+  const handleAddRow = () => {
+    const newProject = {
+      id: Date.now(),
+      epic: '',
+      owner: '',
+      techOwner: '',
+      backend: '',
+      android: '',
+      ios: '',
+      ...initializeSprintAllocations()
+    }
+    setProjects([...projects, newProject])
+  }
+
+  const handleCellChange = (id, field, value) => {
+    setProjects(projects.map(project => 
+      project.id === id ? { ...project, [field]: value } : project
+    ))
+  }
+
+  const calculateTotal = (field) => {
+    return projects.reduce((sum, project) => {
+      const value = parseFloat(project[field]) || 0
+      return sum + value
+    }, 0)
+  }
+
+  const formatNumber = (value) => {
+    if (value === '' || value === null || value === undefined) return ''
+    const num = parseFloat(value)
+    return isNaN(num) ? '' : num.toString()
+  }
+
+  // Sprint table handlers
+  const handleAddSprint = (type) => {
+    const newSprint = {
+      id: Date.now(),
+      name: '',
+      capacity: ''
+    }
+    if (type === 'backend') {
+      setBackendSprints([...backendSprints, newSprint])
+      // Add allocation field to all projects
+      setProjects(prevProjects => prevProjects.map(project => ({
+        ...project,
+        [`backend_${newSprint.id}`]: ''
+      })))
+    } else if (type === 'android') {
+      setAndroidSprints([...androidSprints, newSprint])
+      setProjects(prevProjects => prevProjects.map(project => ({
+        ...project,
+        [`android_${newSprint.id}`]: ''
+      })))
+    } else if (type === 'ios') {
+      setIosSprints([...iosSprints, newSprint])
+      setProjects(prevProjects => prevProjects.map(project => ({
+        ...project,
+        [`ios_${newSprint.id}`]: ''
+      })))
     }
   }
 
+  const handleDeleteSprint = (type, id) => {
+    if (type === 'backend') {
+      setBackendSprints(backendSprints.filter(sprint => sprint.id !== id))
+      // Remove allocation field from all projects
+      setProjects(projects.map(project => {
+        const updated = { ...project }
+        delete updated[`backend_${id}`]
+        return updated
+      }))
+    } else if (type === 'android') {
+      setAndroidSprints(androidSprints.filter(sprint => sprint.id !== id))
+      setProjects(projects.map(project => {
+        const updated = { ...project }
+        delete updated[`android_${id}`]
+        return updated
+      }))
+    } else if (type === 'ios') {
+      setIosSprints(iosSprints.filter(sprint => sprint.id !== id))
+      setProjects(projects.map(project => {
+        const updated = { ...project }
+        delete updated[`ios_${id}`]
+        return updated
+      }))
+    }
+  }
+
+  const handleSprintChange = (type, id, field, value) => {
+    if (type === 'backend') {
+      setBackendSprints(backendSprints.map(sprint =>
+        sprint.id === id ? { ...sprint, [field]: value } : sprint
+      ))
+    } else if (type === 'android') {
+      setAndroidSprints(androidSprints.map(sprint =>
+        sprint.id === id ? { ...sprint, [field]: value } : sprint
+      ))
+    } else if (type === 'ios') {
+      setIosSprints(iosSprints.map(sprint =>
+        sprint.id === id ? { ...sprint, [field]: value } : sprint
+      ))
+    }
+  }
+
+  // Calculate actual capacity from sprint tables
+  const calculateActual = (sprints) => {
+    return sprints.reduce((sum, sprint) => {
+      const value = parseFloat(sprint.capacity) || 0
+      return sum + value
+    }, 0)
+  }
+
+  // Get balance capacity (calculated from sprint tables)
+  const getBalanceCapacity = (type) => {
+    if (type === 'backend') return calculateActual(backendSprints)
+    else if (type === 'android') return calculateActual(androidSprints)
+    else if (type === 'ios') return calculateActual(iosSprints)
+    return 0
+  }
+
+  // Calculate balance (Actual - Require)
+  const calculateBalance = (type) => {
+    const require = calculateTotal(type)
+    const actual = getBalanceCapacity(type)
+    return actual - require
+  }
+
+  // Calculate total allocated for a specific sprint
+  const calculateSprintAllocated = (type, sprintId) => {
+    const fieldName = `${type}_${sprintId}`
+    return projects.reduce((sum, project) => {
+      const value = parseFloat(project[fieldName]) || 0
+      return sum + value
+    }, 0)
+  }
+
+  // Get sprint capacity
+  const getSprintCapacity = (type, sprintId) => {
+    let sprints = []
+    if (type === 'backend') sprints = backendSprints
+    else if (type === 'android') sprints = androidSprints
+    else if (type === 'ios') sprints = iosSprints
+    
+    const sprint = sprints.find(s => s.id === sprintId)
+    return sprint ? (parseFloat(sprint.capacity) || 0) : 0
+  }
+
+  // Calculate sprint balance (Capacity - Allocated)
+  const calculateSprintBalance = (type, sprintId) => {
+    const capacity = getSprintCapacity(type, sprintId)
+    const allocated = calculateSprintAllocated(type, sprintId)
+    return capacity - allocated
+  }
+
+  // Render sprint table component
+  const SprintTable = ({ title, sprints, type }) => (
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <div className="px-4 py-3 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
+        <h3 className="text-sm font-semibold text-gray-700">{title}</h3>
+        <button
+          onClick={() => handleAddSprint(type)}
+          className="px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+        >
+          + Add
+        </button>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Sprint Name
+              </th>
+              <th className="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Capacity
+              </th>
+              <th className="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-16">
+                Action
+              </th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {sprints.map((sprint) => (
+              <tr key={sprint.id} className="hover:bg-gray-50 transition-colors">
+                <td className="px-3 py-2">
+                  <input
+                    type="text"
+                    value={sprint.name}
+                    onChange={(e) => handleSprintChange(type, sprint.id, 'name', e.target.value)}
+                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Sprint name"
+                  />
+                </td>
+                <td className="px-3 py-2">
+                  <input
+                    type="number"
+                    value={formatNumber(sprint.capacity)}
+                    onChange={(e) => handleSprintChange(type, sprint.id, 'capacity', e.target.value)}
+                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center"
+                    placeholder="0"
+                    min="0"
+                    step="0.5"
+                  />
+                </td>
+                <td className="px-3 py-2 text-center">
+                  <button
+                    onClick={() => handleDeleteSprint(type, sprint.id)}
+                    className="px-2 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-3xl font-bold text-gray-900 mb-2">Dashboard</h2>
-        <p className="text-gray-600">
-          Overview of all quarterly projects
-        </p>
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">Projects Table</h2>
+          <p className="text-gray-600">
+            Manage quarterly projects and effort estimation
+          </p>
+        </div>
+        <button
+          onClick={handleAddRow}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-sm"
+        >
+          + Add Row
+        </button>
       </div>
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
@@ -86,71 +300,424 @@ function Dashboard() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Project Name
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200">
+                  Epic
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Quarter
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200">
+                  Owner
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200">
+                  Tech Owner
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Progress
+                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider border-r-2 border-gray-300 bg-blue-50">
+                  Backend
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Team
+                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider border-r-2 border-gray-300 bg-green-50">
+                  Android
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Timeline
+                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider border-r-2 border-gray-300 bg-orange-50">
+                  iOS
                 </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {projects.map((project) => (
                 <tr key={project.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">
-                      {project.name}
-                    </div>
+                  {/* Epic - Text Input */}
+                  <td className="px-4 py-3 border-r border-gray-200">
+                    <input
+                      type="text"
+                      value={project.epic}
+                      onChange={(e) => handleCellChange(project.id, 'epic', e.target.value)}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Enter epic name"
+                    />
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-500">{project.quarter}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
-                        project.status
-                      )}`}
+                  
+                  {/* Owner - Select Dropdown */}
+                  <td className="px-4 py-3 border-r border-gray-200">
+                    <select
+                      value={project.owner}
+                      onChange={(e) => handleCellChange(project.id, 'owner', e.target.value)}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
                     >
-                      {project.status}
-                    </span>
+                      <option value="">Select Owner</option>
+                      {OWNER_OPTIONS.map((owner) => (
+                        <option key={owner} value={owner}>
+                          {owner}
+                        </option>
+                      ))}
+                    </select>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div className="w-full bg-gray-200 rounded-full h-2 mr-2">
-                        <div
-                          className="bg-blue-600 h-2 rounded-full transition-all"
-                          style={{ width: `${project.progress}%` }}
-                        ></div>
-                      </div>
-                      <span className="text-sm text-gray-600">
-                        {project.progress}%
-                      </span>
-                    </div>
+                  
+                  {/* Tech Owner - Select Dropdown */}
+                  <td className="px-4 py-3 border-r border-gray-200">
+                    <select
+                      value={project.techOwner}
+                      onChange={(e) => handleCellChange(project.id, 'techOwner', e.target.value)}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                    >
+                      <option value="">Select Tech Owner</option>
+                      {TECH_OWNER_OPTIONS.map((techOwner) => (
+                        <option key={techOwner} value={techOwner}>
+                          {techOwner}
+                        </option>
+                      ))}
+                    </select>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-500">{project.team}</div>
+                  
+                  {/* Backend - Number Input */}
+                  <td className="px-4 py-3 border-r-2 border-gray-300 bg-blue-50">
+                    <input
+                      type="number"
+                      value={formatNumber(project.backend)}
+                      onChange={(e) => handleCellChange(project.id, 'backend', e.target.value)}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center"
+                      placeholder="0"
+                      min="0"
+                      step="0.5"
+                    />
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-500">
-                      {project.startDate} - {project.endDate}
-                    </div>
+                  
+                  {/* Android - Number Input */}
+                  <td className="px-4 py-3 border-r-2 border-gray-300 bg-green-50">
+                    <input
+                      type="number"
+                      value={formatNumber(project.android)}
+                      onChange={(e) => handleCellChange(project.id, 'android', e.target.value)}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center"
+                      placeholder="0"
+                      min="0"
+                      step="0.5"
+                    />
+                  </td>
+                  
+                  {/* iOS - Number Input */}
+                  <td className="px-4 py-3 border-r-2 border-gray-300 bg-orange-50">
+                    <input
+                      type="number"
+                      value={formatNumber(project.ios)}
+                      onChange={(e) => handleCellChange(project.id, 'ios', e.target.value)}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center"
+                      placeholder="0"
+                      min="0"
+                      step="0.5"
+                    />
                   </td>
                 </tr>
               ))}
+              
+              {/* Summary Row - Require */}
+              <tr className="bg-gray-100 font-semibold border-t-2 border-gray-300">
+                <td className="px-4 py-3 border-r border-gray-200">
+                  <span className="text-sm text-gray-700">Require</span>
+                </td>
+                <td className="px-4 py-3 border-r border-gray-200"></td>
+                <td className="px-4 py-3 border-r border-gray-200"></td>
+                <td className="px-4 py-3 border-r-2 border-gray-300 bg-blue-50 text-center">
+                  <span className="text-sm text-gray-900">{calculateTotal('backend') || 0}</span>
+                </td>
+                <td className="px-4 py-3 border-r-2 border-gray-300 bg-green-50 text-center">
+                  <span className="text-sm text-gray-900">{calculateTotal('android') || 0}</span>
+                </td>
+                <td className="px-4 py-3 border-r-2 border-gray-300 bg-orange-50 text-center">
+                  <span className="text-sm text-gray-900">{calculateTotal('ios') || 0}</span>
+                </td>
+              </tr>
             </tbody>
           </table>
+        </div>
+      </div>
+
+      {/* Balance Summary Table - Above Resource Planning */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div className="px-4 py-3 bg-gray-50 border-b border-gray-200">
+          <h3 className="text-lg font-semibold text-gray-700">Balance Summary</h3>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200">
+                  Metric
+                </th>
+                <th className="px-6 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200">
+                  Backend
+                </th>
+                <th className="px-6 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200">
+                  Android
+                </th>
+                <th className="px-6 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  iOS
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {/* Require Row */}
+              <tr className="bg-gray-50">
+                <td className="px-6 py-3 border-r border-gray-200">
+                  <span className="text-sm font-medium text-gray-700">Require</span>
+                </td>
+                <td className="px-6 py-3 border-r border-gray-200 text-center">
+                  <span className="text-sm text-gray-900">{calculateTotal('backend') || 0}</span>
+                </td>
+                <td className="px-6 py-3 border-r border-gray-200 text-center">
+                  <span className="text-sm text-gray-900">{calculateTotal('android') || 0}</span>
+                </td>
+                <td className="px-6 py-3 text-center">
+                  <span className="text-sm text-gray-900">{calculateTotal('ios') || 0}</span>
+                </td>
+              </tr>
+              
+              {/* Capacity Row - Calculated from Sprint Tables */}
+              <tr className="bg-gray-50">
+                <td className="px-6 py-3 border-r border-gray-200">
+                  <span className="text-sm font-medium text-gray-700">Capacity</span>
+                </td>
+                <td className="px-6 py-3 border-r border-gray-200 text-center">
+                  <span className="text-sm text-gray-900">{getBalanceCapacity('backend') || 0}</span>
+                </td>
+                <td className="px-6 py-3 border-r border-gray-200 text-center">
+                  <span className="text-sm text-gray-900">{getBalanceCapacity('android') || 0}</span>
+                </td>
+                <td className="px-6 py-3 text-center">
+                  <span className="text-sm text-gray-900">{getBalanceCapacity('ios') || 0}</span>
+                </td>
+              </tr>
+              
+              {/* Balance Row */}
+              <tr className="bg-gray-100 font-semibold border-t-2 border-gray-300">
+                <td className="px-6 py-3 border-r border-gray-200">
+                  <span className="text-sm font-semibold text-gray-700">Balance</span>
+                </td>
+                <td className="px-6 py-3 border-r border-gray-200 text-center">
+                  <span className={`text-sm font-semibold ${
+                    calculateBalance('backend') < 0 ? 'text-red-600' : 
+                    calculateBalance('backend') > 0 ? 'text-green-600' : 
+                    'text-gray-900'
+                  }`}>
+                    {calculateBalance('backend')}
+                  </span>
+                </td>
+                <td className="px-6 py-3 border-r border-gray-200 text-center">
+                  <span className={`text-sm font-semibold ${
+                    calculateBalance('android') < 0 ? 'text-red-600' : 
+                    calculateBalance('android') > 0 ? 'text-green-600' : 
+                    'text-gray-900'
+                  }`}>
+                    {calculateBalance('android')}
+                  </span>
+                </td>
+                <td className="px-6 py-3 text-center">
+                  <span className={`text-sm font-semibold ${
+                    calculateBalance('ios') < 0 ? 'text-red-600' : 
+                    calculateBalance('ios') > 0 ? 'text-green-600' : 
+                    'text-gray-900'
+                  }`}>
+                    {calculateBalance('ios')}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Sprint Allocation Table */}
+      <div className="space-y-6">
+        <div>
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">Sprint Allocation</h2>
+          <p className="text-gray-600">
+            Allocate effort to specific sprints for each project
+          </p>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200" style={{ minWidth: '1200px' }}>
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-r-2 border-gray-300 sticky left-0 bg-gray-50 z-10">
+                    Epic
+                  </th>
+                  
+                  {/* Backend Sprint Columns */}
+                  {backendSprints.map((sprint) => (
+                    <th
+                      key={`backend_${sprint.id}`}
+                      className="px-4 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200 bg-blue-50"
+                      title={sprint.name || 'Unnamed Sprint'}
+                    >
+                      {sprint.name || 'Sprint'}
+                    </th>
+                  ))}
+                  
+                  {/* Android Sprint Columns */}
+                  {androidSprints.map((sprint) => (
+                    <th
+                      key={`android_${sprint.id}`}
+                      className="px-4 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200 bg-green-50"
+                      title={sprint.name || 'Unnamed Sprint'}
+                    >
+                      {sprint.name || 'Sprint'}
+                    </th>
+                  ))}
+                  
+                  {/* iOS Sprint Columns */}
+                  {iosSprints.map((sprint) => (
+                    <th
+                      key={`ios_${sprint.id}`}
+                      className="px-4 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider border-r border-gray-200 bg-orange-50"
+                      title={sprint.name || 'Unnamed Sprint'}
+                    >
+                      {sprint.name || 'Sprint'}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {projects.map((project) => (
+                  <tr key={project.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-4 py-3 border-r-2 border-gray-300 sticky left-0 bg-white z-10">
+                      <span className="text-sm font-medium text-gray-900">{project.epic || 'Unnamed Epic'}</span>
+                    </td>
+                    
+                    {/* Backend Sprint Columns */}
+                    {backendSprints.map((sprint) => (
+                      <td key={`backend_${sprint.id}`} className="px-4 py-3 border-r border-gray-200 bg-blue-50">
+                        <input
+                          type="number"
+                          value={formatNumber(project[`backend_${sprint.id}`])}
+                          onChange={(e) => handleCellChange(project.id, `backend_${sprint.id}`, e.target.value)}
+                          className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center"
+                          placeholder="0"
+                          min="0"
+                          step="0.5"
+                        />
+                      </td>
+                    ))}
+                    
+                    {/* Android Sprint Columns */}
+                    {androidSprints.map((sprint) => (
+                      <td key={`android_${sprint.id}`} className="px-4 py-3 border-r border-gray-200 bg-green-50">
+                        <input
+                          type="number"
+                          value={formatNumber(project[`android_${sprint.id}`])}
+                          onChange={(e) => handleCellChange(project.id, `android_${sprint.id}`, e.target.value)}
+                          className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center"
+                          placeholder="0"
+                          min="0"
+                          step="0.5"
+                        />
+                      </td>
+                    ))}
+                    
+                    {/* iOS Sprint Columns */}
+                    {iosSprints.map((sprint) => (
+                      <td key={`ios_${sprint.id}`} className="px-4 py-3 border-r border-gray-200 bg-orange-50">
+                        <input
+                          type="number"
+                          value={formatNumber(project[`ios_${sprint.id}`])}
+                          onChange={(e) => handleCellChange(project.id, `ios_${sprint.id}`, e.target.value)}
+                          className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center"
+                          placeholder="0"
+                          min="0"
+                          step="0.5"
+                        />
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+                
+                {/* Summary Row with Footers */}
+                <tr className="bg-gray-100 font-semibold border-t-2 border-gray-300">
+                  <td className="px-4 py-3 border-r-2 border-gray-300 sticky left-0 bg-gray-100 z-10">
+                    <span className="text-sm text-gray-700">Summary</span>
+                  </td>
+                  
+                  {/* Backend Sprint Footers */}
+                  {backendSprints.map((sprint) => (
+                    <td key={`backend_footer_${sprint.id}`} className="px-4 py-2 border-r border-gray-200 bg-blue-50 text-center">
+                      <div className="text-xs space-y-1">
+                        <div className="text-gray-600">Allocated: {calculateSprintAllocated('backend', sprint.id) || 0}</div>
+                        <div className="text-gray-600">Capacity: {getSprintCapacity('backend', sprint.id) || 0}</div>
+                        <div className={`font-semibold ${
+                          calculateSprintBalance('backend', sprint.id) < 0 ? 'text-red-600' : 
+                          calculateSprintBalance('backend', sprint.id) > 0 ? 'text-green-600' : 
+                          'text-gray-900'
+                        }`}>
+                          Balance: {calculateSprintBalance('backend', sprint.id)}
+                        </div>
+                      </div>
+                    </td>
+                  ))}
+                  
+                  {/* Android Sprint Footers */}
+                  {androidSprints.map((sprint) => (
+                    <td key={`android_footer_${sprint.id}`} className="px-4 py-2 border-r border-gray-200 bg-green-50 text-center">
+                      <div className="text-xs space-y-1">
+                        <div className="text-gray-600">Allocated: {calculateSprintAllocated('android', sprint.id) || 0}</div>
+                        <div className="text-gray-600">Capacity: {getSprintCapacity('android', sprint.id) || 0}</div>
+                        <div className={`font-semibold ${
+                          calculateSprintBalance('android', sprint.id) < 0 ? 'text-red-600' : 
+                          calculateSprintBalance('android', sprint.id) > 0 ? 'text-green-600' : 
+                          'text-gray-900'
+                        }`}>
+                          Balance: {calculateSprintBalance('android', sprint.id)}
+                        </div>
+                      </div>
+                    </td>
+                  ))}
+                  
+                  {/* iOS Sprint Footers */}
+                  {iosSprints.map((sprint) => (
+                    <td key={`ios_footer_${sprint.id}`} className="px-4 py-2 border-r border-gray-200 bg-orange-50 text-center">
+                      <div className="text-xs space-y-1">
+                        <div className="text-gray-600">Allocated: {calculateSprintAllocated('ios', sprint.id) || 0}</div>
+                        <div className="text-gray-600">Capacity: {getSprintCapacity('ios', sprint.id) || 0}</div>
+                        <div className={`font-semibold ${
+                          calculateSprintBalance('ios', sprint.id) < 0 ? 'text-red-600' : 
+                          calculateSprintBalance('ios', sprint.id) > 0 ? 'text-green-600' : 
+                          'text-gray-900'
+                        }`}>
+                          Balance: {calculateSprintBalance('ios', sprint.id)}
+                        </div>
+                      </div>
+                    </td>
+                  ))}
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      {/* Resource Planning Section */}
+      <div className="space-y-6">
+        <div>
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">Resource Planning</h2>
+          <p className="text-gray-600">
+            Manage sprint capacities and track resource balance
+          </p>
+        </div>
+
+        {/* Sprint Capacity Tables - 3 columns grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <SprintTable
+            title="Backend Sprints"
+            sprints={backendSprints}
+            type="backend"
+          />
+          <SprintTable
+            title="Android Sprints"
+            sprints={androidSprints}
+            type="android"
+          />
+          <SprintTable
+            title="iOS Sprints"
+            sprints={iosSprints}
+            type="ios"
+          />
         </div>
       </div>
     </div>

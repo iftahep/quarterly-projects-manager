@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import React from 'react'
+import { quarterAPI } from '../services/api'
 
 const OWNER_OPTIONS = ['Oren', 'Shchory', 'Bar', 'Ben', 'Ohad', 'Ronen', 'Jenny', 'Aharoni', 'Rick']
 const TECH_OWNER_OPTIONS = ['Vitaly', 'Stas', 'Semyon', 'Dzimtry', 'Kirill', 'Shalom', 'Aharoni', 'Jenny']
@@ -70,7 +71,7 @@ const SprintTable = React.memo(({ title, sprints, type, onSprintChange, onAddSpr
   </div>
 ))
 
-function Dashboard({ saveFunctionRef }) {
+function Dashboard({ saveFunctionRef, quarterId }) {
   // Initialize sprint capacity tables state
   const [backendSprints, setBackendSprints] = useState([
     { id: 1, name: 'Sprint 1', capacity: '' },
@@ -158,55 +159,63 @@ function Dashboard({ saveFunctionRef }) {
     return isNaN(num) ? '' : num.toString()
   }
 
-  // LocalStorage functions
-  const STORAGE_KEY = 'quarterly-projects-manager-data'
+  // API functions
+  const saveToAPI = async () => {
+    if (!quarterId) {
+      console.error('No quarter ID available')
+      return false
+    }
 
-  const saveToLocalStorage = () => {
     const dataToSave = {
       projects,
       backendSprints,
       androidSprints,
       iosSprints
     }
+
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave))
+      await quarterAPI.update(quarterId, { data: dataToSave })
       return true
     } catch (error) {
-      console.error('Error saving to localStorage:', error)
+      console.error('Error saving to API:', error)
       return false
     }
   }
 
-  const loadFromLocalStorage = () => {
+  const loadFromAPI = async () => {
+    if (!quarterId) return null
+
     try {
-      const savedData = localStorage.getItem(STORAGE_KEY)
-      if (savedData) {
-        const parsed = JSON.parse(savedData)
-        return parsed
+      const quarter = await quarterAPI.getById(quarterId)
+      if (quarter && quarter.data) {
+        return quarter.data
       }
     } catch (error) {
-      console.error('Error loading from localStorage:', error)
+      console.error('Error loading from API:', error)
     }
     return null
   }
 
-  // Load data on mount
+  // Load data when quarterId changes
   useEffect(() => {
-    const savedData = loadFromLocalStorage()
-    if (savedData) {
-      if (savedData.projects) setProjects(savedData.projects)
-      if (savedData.backendSprints) setBackendSprints(savedData.backendSprints)
-      if (savedData.androidSprints) setAndroidSprints(savedData.androidSprints)
-      if (savedData.iosSprints) setIosSprints(savedData.iosSprints)
+    if (quarterId) {
+      loadFromAPI().then((savedData) => {
+        if (savedData) {
+          if (savedData.projects) setProjects(savedData.projects)
+          if (savedData.backendSprints) setBackendSprints(savedData.backendSprints)
+          if (savedData.androidSprints) setAndroidSprints(savedData.androidSprints)
+          if (savedData.iosSprints) setIosSprints(savedData.iosSprints)
+        }
+      })
     }
-  }, []) // Only run on mount
+  }, [quarterId]) // Reload when quarter changes
 
   // Expose save function to parent component via ref
   useEffect(() => {
     if (saveFunctionRef) {
-      saveFunctionRef.current = saveToLocalStorage
+      saveFunctionRef.current = saveToAPI
     }
-  }, [projects, backendSprints, androidSprints, iosSprints, saveFunctionRef])
+  }, [projects, backendSprints, androidSprints, iosSprints, quarterId, saveFunctionRef])
 
   // Sprint table handlers
   const handleAddSprint = (type) => {

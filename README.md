@@ -55,6 +55,19 @@ A comprehensive React application built with Vite and Tailwind CSS for managing 
   - Clean delete buttons: Icon-only, hidden by default, appear on row hover
 - **Real-time Updates**: Changes automatically reflect in Sprint Allocation table
 
+### Gantt Chart View
+- **Timeline Visualization**: Full-screen modal showing project timeline across sprints
+- **Multi-Team Tracks**: Each project row displays 3 sub-tracks (Backend, Android, iOS)
+- **Visual Bars**: 
+  - Color-coded bars (Green=Backend, Blue=Android, Orange=iOS)
+  - Bars show allocation hours within each sprint
+  - Connected bars for projects spanning multiple consecutive sprints
+- **Classic Gantt Layout**: 
+  - Project names on the left (sticky column)
+  - Sprint timeline on the right
+  - Legend showing team color coding
+- **Access**: Click "Show Gantt" button in Projects Table header
+
 ### Data Persistence
 - **Backend API**: All data stored in SQLite database via Node.js/Express backend
 - **Multi-Quarter Management**: Create, activate, and switch between multiple quarters
@@ -109,10 +122,18 @@ quarterly-projects-manager/
 ├── src/
 │   ├── components/
 │   │   ├── Dashboard.jsx      # Main dashboard with all tables
-│   │   └── Header.jsx         # Header with save button
+│   │   ├── Header.jsx         # Header with save button
+│   │   ├── QuarterSelector.jsx # Quarter selection and management
+│   │   └── GanttModal.jsx     # Gantt chart timeline visualization
+│   ├── services/
+│   │   └── api.js             # API client for backend communication
 │   ├── App.jsx                # Main app component
 │   ├── main.jsx               # React entry point
 │   └── index.css              # Global styles with Tailwind
+├── server/
+│   ├── server.js              # Express backend server
+│   ├── package.json           # Backend dependencies
+│   └── database.sqlite        # SQLite database (auto-generated)
 ├── index.html
 ├── package.json
 ├── tailwind.config.js
@@ -134,10 +155,22 @@ Main component containing:
 - Balance Summary Table
 - Sprint Allocation Table
 - Resource Planning Section (3 Sprint Capacity Tables)
+- Gantt Chart Modal trigger button
 
 ### Header Component
 - Application title
 - Save Changes button with toast notification
+
+### GanttModal Component
+- Full-screen modal overlay
+- Timeline visualization of project allocations
+- Multi-team track display (Backend, Android, iOS)
+- Classic Gantt chart layout with sticky project names column
+
+### QuarterSelector Component
+- Quarter selection dropdown
+- Create, activate, and delete quarters
+- Active quarter indicator
 
 ## Usage
 
@@ -159,6 +192,7 @@ All data is stored in SQLite database via the backend API, including:
 
 ## Recent Updates
 
+- ✅ **Gantt Chart View**: New timeline visualization modal showing project allocations across sprints
 - ✅ **Sticky Footer Rows**: Summary rows in Projects and Sprint Allocation tables stay visible while scrolling
 - ✅ **Smart Sprint Headers**: Headers show capacity and balance with color-coded feedback
 - ✅ **Column Visibility Toggle**: Show/hide sprint columns by team to manage wide tables

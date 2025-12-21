@@ -146,6 +146,24 @@ function Dashboard({ saveFunctionRef, quarterId }) {
     ))
   }
 
+  const handleMoveProject = (projectId, direction) => {
+    const currentIndex = projects.findIndex(p => p.id === projectId)
+    if (currentIndex === -1) return
+
+    const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1
+    
+    // Check bounds
+    if (newIndex < 0 || newIndex >= projects.length) return
+
+    // Create new array with swapped items
+    const newProjects = [...projects]
+    const temp = newProjects[currentIndex]
+    newProjects[currentIndex] = newProjects[newIndex]
+    newProjects[newIndex] = temp
+    
+    setProjects(newProjects)
+  }
+
   const calculateTotal = (field) => {
     return projects.reduce((sum, project) => {
       const value = parseFloat(project[field]) || 0
@@ -384,6 +402,9 @@ function Dashboard({ saveFunctionRef, quarterId }) {
           <table className="min-w-full">
             <thead className="bg-gray-50">
               <tr>
+                <th className="px-2 py-4 text-center text-xs font-medium text-gray-600 uppercase tracking-wider" style={{ minWidth: '60px', width: '60px' }}>
+                  Move
+                </th>
                 <th className="px-4 py-4 text-left text-xs font-medium text-gray-600 uppercase tracking-wider" style={{ minWidth: '300px', width: '300px' }}>
                   Epic
                 </th>
@@ -428,8 +449,41 @@ function Dashboard({ saveFunctionRef, quarterId }) {
               </tr>
             </thead>
             <tbody className="bg-white">
-              {projects.map((project) => (
+              {projects.map((project, index) => (
                 <tr key={project.id} className="hover:bg-gray-50 transition-colors border-b border-gray-100">
+                  {/* Move Buttons */}
+                  <td className="px-2 py-4 text-center" style={{ minWidth: '60px', width: '60px' }}>
+                    <div className="flex flex-col gap-1 items-center">
+                      <button
+                        onClick={() => handleMoveProject(project.id, 'up')}
+                        disabled={index === 0}
+                        className={`p-1 rounded transition-colors ${
+                          index === 0
+                            ? 'text-gray-300 cursor-not-allowed'
+                            : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+                        }`}
+                        title="Move up"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                        </svg>
+                      </button>
+                      <button
+                        onClick={() => handleMoveProject(project.id, 'down')}
+                        disabled={index === projects.length - 1}
+                        className={`p-1 rounded transition-colors ${
+                          index === projects.length - 1
+                            ? 'text-gray-300 cursor-not-allowed'
+                            : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+                        }`}
+                        title="Move down"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+                    </div>
+                  </td>
                   {/* Epic - Text Input */}
                   <td className="px-4 py-4" style={{ minWidth: '300px', width: '300px' }}>
                     <input
@@ -564,6 +618,7 @@ function Dashboard({ saveFunctionRef, quarterId }) {
               
               {/* Summary Row - Require */}
               <tr className="bg-gray-100 font-semibold border-t-2 border-gray-300 border-b border-gray-100">
+                <td className="px-2 py-4" style={{ minWidth: '60px', width: '60px' }}></td>
                 <td className="px-4 py-4" style={{ minWidth: '300px', width: '300px' }}>
                   <span className="text-sm text-gray-700">Require</span>
                 </td>

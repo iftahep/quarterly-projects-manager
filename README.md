@@ -8,6 +8,10 @@ A comprehensive React application built with Vite and Tailwind CSS for managing 
 - **Epic Management**: Track project epics with expandable Epic column (300px width)
 - **Ownership**: Assign Owner and Tech Owner from predefined dropdown lists
 - **Effort Estimation**: Input required hours for Backend, Android, and iOS teams
+- **Project Reordering**: 
+  - Move projects up/down using arrow buttons in the "Move" column
+  - First project cannot move up, last project cannot move down
+  - Order is preserved when saving data
 - **Project Balance Tracking**: 
   - Automatic calculation of allocated hours per project
   - Balance calculation (Required - Allocated) with color coding:
@@ -126,11 +130,12 @@ Main component containing:
 ## Usage
 
 1. **Add Projects**: Click "Add Row" in Projects Table to add new projects
-2. **Set Requirements**: Enter required hours for Backend, Android, and iOS
-3. **Define Sprints**: Add sprints in Resource Planning section and set capacities
-4. **Allocate Hours**: Enter allocated hours in Sprint Allocation table
-5. **Monitor Balance**: Check Balance Summary and project-level balances
-6. **Save Data**: Click "Save Changes" to persist data to localStorage
+2. **Reorder Projects**: Use the up/down arrow buttons in the "Move" column to change project order
+3. **Set Requirements**: Enter required hours for Backend, Android, and iOS
+4. **Define Sprints**: Add sprints in Resource Planning section and set capacities
+5. **Allocate Hours**: Enter allocated hours in Sprint Allocation table
+6. **Monitor Balance**: Check Balance Summary and project-level balances
+7. **Save Data**: Click "Save Changes" to persist data to the backend API
 
 ## Data Storage
 
@@ -141,12 +146,15 @@ All data is stored in browser's localStorage under the key `quarterlyProjectsDat
 
 ## Recent Updates
 
+- ✅ Project reordering with up/down arrow buttons
+- ✅ Clean table UI with improved spacing and minimal borders
 - ✅ Dynamic column widths (Epic: 300px, others optimized)
 - ✅ Visual separators between sprint groups
 - ✅ Smart coloring (only cells with values)
 - ✅ Project-level balance tracking
 - ✅ Auto-calculated capacity in Balance Summary
-- ✅ localStorage persistence with save button
+- ✅ Backend API integration with SQLite database
+- ✅ Multi-quarter management system
 
 ## License
 

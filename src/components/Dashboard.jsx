@@ -34,7 +34,7 @@ const SprintTable = React.memo(({ title, sprints, type, onSprintChange, onAddSpr
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
           {sprints.map((sprint) => (
-            <tr key={sprint.id} className="hover:bg-gray-50 transition-colors">
+            <tr key={sprint.id} className="group hover:bg-gray-50 transition-colors">
               <td className="px-3 py-2">
                 <input
                   type="text"
@@ -58,9 +58,12 @@ const SprintTable = React.memo(({ title, sprints, type, onSprintChange, onAddSpr
               <td className="px-3 py-2 text-center">
                 <button
                   onClick={() => onDeleteSprint(type, sprint.id)}
-                  className="px-2 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+                  className="p-1.5 text-gray-400 hover:text-red-600 transition-colors opacity-0 group-hover:opacity-100"
+                  title="Delete sprint"
                 >
-                  Delete
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
                 </button>
               </td>
             </tr>
@@ -85,6 +88,11 @@ function Dashboard({ saveFunctionRef, quarterId }) {
     { id: 1, name: 'Sprint 1', capacity: '' },
     { id: 2, name: 'Sprint 2', capacity: '' }
   ])
+
+  // Visibility toggles for sprint columns
+  const [showBackendSprints, setShowBackendSprints] = useState(true)
+  const [showAndroidSprints, setShowAndroidSprints] = useState(true)
+  const [showIosSprints, setShowIosSprints] = useState(true)
 
 
   // Initialize sprint allocations for a project
@@ -381,7 +389,7 @@ function Dashboard({ saveFunctionRef, quarterId }) {
 
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-20">
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-3xl font-bold text-gray-900 mb-2">Projects Table</h2>
@@ -450,7 +458,7 @@ function Dashboard({ saveFunctionRef, quarterId }) {
             </thead>
             <tbody className="bg-white">
               {projects.map((project, index) => (
-                <tr key={project.id} className="hover:bg-gray-50 transition-colors border-b border-gray-100">
+                <tr key={project.id} className={`${index % 2 === 1 ? 'bg-gray-50/50' : ''} hover:bg-blue-50 transition-colors border-b border-gray-100`}>
                   {/* Move Buttons */}
                   <td className="px-2 py-4 text-center" style={{ minWidth: '60px', width: '60px' }}>
                     <div className="flex flex-col gap-1 items-center">
@@ -531,9 +539,13 @@ function Dashboard({ saveFunctionRef, quarterId }) {
                   <td className="px-2 py-4 bg-green-50" style={{ minWidth: '90px', width: '90px' }}>
                     <input
                       type="number"
-                      value={formatNumber(project.backend)}
+                      value={(() => {
+                        const val = formatNumber(project.backend)
+                        const num = parseFloat(val)
+                        return (val === '' || val === null || val === undefined || num === 0) ? '' : val
+                      })()}
                       onChange={(e) => handleCellChange(project.id, 'backend', e.target.value)}
-                      className="w-full px-2 py-1 text-sm bg-transparent border-0 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-center"
+                      className="w-full px-2 py-1 text-sm bg-transparent border-0 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-center placeholder:text-gray-200"
                       placeholder="0"
                       min="0"
                       step="0.5"
@@ -560,9 +572,13 @@ function Dashboard({ saveFunctionRef, quarterId }) {
                   <td className="px-2 py-4 bg-blue-50" style={{ minWidth: '90px', width: '90px' }}>
                     <input
                       type="number"
-                      value={formatNumber(project.android)}
+                      value={(() => {
+                        const val = formatNumber(project.android)
+                        const num = parseFloat(val)
+                        return (val === '' || val === null || val === undefined || num === 0) ? '' : val
+                      })()}
                       onChange={(e) => handleCellChange(project.id, 'android', e.target.value)}
-                      className="w-full px-2 py-1 text-sm bg-transparent border-0 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-center"
+                      className="w-full px-2 py-1 text-sm bg-transparent border-0 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-center placeholder:text-gray-200"
                       placeholder="0"
                       min="0"
                       step="0.5"
@@ -589,9 +605,13 @@ function Dashboard({ saveFunctionRef, quarterId }) {
                   <td className="px-2 py-4 bg-orange-50" style={{ minWidth: '90px', width: '90px' }}>
                     <input
                       type="number"
-                      value={formatNumber(project.ios)}
+                      value={(() => {
+                        const val = formatNumber(project.ios)
+                        const num = parseFloat(val)
+                        return (val === '' || val === null || val === undefined || num === 0) ? '' : val
+                      })()}
                       onChange={(e) => handleCellChange(project.id, 'ios', e.target.value)}
-                      className="w-full px-2 py-1 text-sm bg-transparent border-0 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-center"
+                      className="w-full px-2 py-1 text-sm bg-transparent border-0 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-center placeholder:text-gray-200"
                       placeholder="0"
                       min="0"
                       step="0.5"
@@ -615,62 +635,63 @@ function Dashboard({ saveFunctionRef, quarterId }) {
                   </td>
                 </tr>
               ))}
-              
+            </tbody>
+            <tfoot>
               {/* Summary Row - Require */}
-              <tr className="bg-gray-100 font-semibold border-t-2 border-gray-300 border-b border-gray-100">
-                <td className="px-2 py-4" style={{ minWidth: '60px', width: '60px' }}></td>
-                <td className="px-4 py-4" style={{ minWidth: '300px', width: '300px' }}>
+              <tr className="bg-white font-bold border-t-2 border-gray-300 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+                <td className="px-2 py-4 sticky bottom-[80px] bg-white z-30" style={{ minWidth: '60px', width: '60px' }}></td>
+                <td className="px-4 py-4 sticky bottom-[80px] bg-white z-30" style={{ minWidth: '300px', width: '300px' }}>
                   <span className="text-sm text-gray-700">Require</span>
                 </td>
-                <td className="px-2 py-4" style={{ minWidth: '120px', width: '120px' }}></td>
-                <td className="px-2 py-4" style={{ minWidth: '120px', width: '120px' }}></td>
+                <td className="px-2 py-4 sticky bottom-[80px] bg-white z-30" style={{ minWidth: '120px', width: '120px' }}></td>
+                <td className="px-2 py-4 sticky bottom-[80px] bg-white z-30" style={{ minWidth: '120px', width: '120px' }}></td>
                 
                 {/* Backend Team Summary */}
-                <td className="px-2 py-4 bg-green-50 text-center" style={{ minWidth: '90px', width: '90px' }}>
+                <td className="px-2 py-4 bg-green-50 text-center sticky bottom-[80px] z-30" style={{ minWidth: '90px', width: '90px' }}>
                   <span className="text-sm text-gray-900">{calculateTotal('backend') || 0}</span>
                 </td>
-                <td className="px-2 py-4 bg-green-50 text-center" style={{ minWidth: '100px', width: '100px' }}>
+                <td className="px-2 py-4 bg-green-50 text-center sticky bottom-[80px] z-30" style={{ minWidth: '100px', width: '100px' }}>
                   <span className="text-sm text-gray-900">
                     {projects.reduce((sum, project) => sum + calculateProjectAllocated(project, 'backend'), 0) || 0}
                   </span>
                 </td>
-                <td className="px-2 py-4 border-r-4 border-gray-400 bg-green-50 text-center" style={{ minWidth: '100px', width: '100px' }}>
+                <td className="px-2 py-4 border-r-4 border-gray-400 bg-green-50 text-center sticky bottom-[80px] z-30" style={{ minWidth: '100px', width: '100px' }}>
                   <span className="text-sm text-gray-900">
                     {projects.reduce((sum, project) => sum + calculateProjectBalance(project, 'backend'), 0) || 0}
                   </span>
                 </td>
                 
                 {/* Android Team Summary */}
-                <td className="px-2 py-4 bg-blue-50 text-center" style={{ minWidth: '90px', width: '90px' }}>
+                <td className="px-2 py-4 bg-blue-50 text-center sticky bottom-[80px] z-30" style={{ minWidth: '90px', width: '90px' }}>
                   <span className="text-sm text-gray-900">{calculateTotal('android') || 0}</span>
                 </td>
-                <td className="px-2 py-4 bg-blue-50 text-center" style={{ minWidth: '100px', width: '100px' }}>
+                <td className="px-2 py-4 bg-blue-50 text-center sticky bottom-[80px] z-30" style={{ minWidth: '100px', width: '100px' }}>
                   <span className="text-sm text-gray-900">
                     {projects.reduce((sum, project) => sum + calculateProjectAllocated(project, 'android'), 0) || 0}
                   </span>
                 </td>
-                <td className="px-2 py-4 border-r-4 border-gray-400 bg-blue-50 text-center" style={{ minWidth: '100px', width: '100px' }}>
+                <td className="px-2 py-4 border-r-4 border-gray-400 bg-blue-50 text-center sticky bottom-[80px] z-30" style={{ minWidth: '100px', width: '100px' }}>
                   <span className="text-sm text-gray-900">
                     {projects.reduce((sum, project) => sum + calculateProjectBalance(project, 'android'), 0) || 0}
                   </span>
                 </td>
                 
                 {/* iOS Team Summary */}
-                <td className="px-2 py-4 bg-orange-50 text-center" style={{ minWidth: '90px', width: '90px' }}>
+                <td className="px-2 py-4 bg-orange-50 text-center sticky bottom-[80px] z-30" style={{ minWidth: '90px', width: '90px' }}>
                   <span className="text-sm text-gray-900">{calculateTotal('ios') || 0}</span>
                 </td>
-                <td className="px-2 py-4 bg-orange-50 text-center" style={{ minWidth: '100px', width: '100px' }}>
+                <td className="px-2 py-4 bg-orange-50 text-center sticky bottom-[80px] z-30" style={{ minWidth: '100px', width: '100px' }}>
                   <span className="text-sm text-gray-900">
                     {projects.reduce((sum, project) => sum + calculateProjectAllocated(project, 'ios'), 0) || 0}
                   </span>
                 </td>
-                <td className="px-2 py-4 border-r-2 border-gray-300 bg-orange-50 text-center" style={{ minWidth: '100px', width: '100px' }}>
+                <td className="px-2 py-4 border-r-2 border-gray-300 bg-orange-50 text-center sticky bottom-[80px] z-30" style={{ minWidth: '100px', width: '100px' }}>
                   <span className="text-sm text-gray-900">
                     {projects.reduce((sum, project) => sum + calculateProjectBalance(project, 'ios'), 0) || 0}
                   </span>
                 </td>
               </tr>
-            </tbody>
+            </tfoot>
           </table>
         </div>
       </div>
@@ -778,79 +799,185 @@ function Dashboard({ saveFunctionRef, quarterId }) {
           </p>
         </div>
 
+        {/* Toggle Controls */}
+        <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+          <span className="text-sm font-medium text-gray-700">Show Columns:</span>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={showBackendSprints}
+              onChange={(e) => setShowBackendSprints(e.target.checked)}
+              className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+            />
+            <span className="text-sm text-gray-700">Backend</span>
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={showAndroidSprints}
+              onChange={(e) => setShowAndroidSprints(e.target.checked)}
+              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+            />
+            <span className="text-sm text-gray-700">Android</span>
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={showIosSprints}
+              onChange={(e) => setShowIosSprints(e.target.checked)}
+              className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+            />
+            <span className="text-sm text-gray-700">iOS</span>
+          </label>
+        </div>
+
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="min-w-full" style={{ minWidth: '1200px' }}>
               <thead className="bg-gray-50">
+                {/* Super Headers Row - Team Grouping */}
                 <tr>
-                  <th className="px-4 py-4 text-left text-xs font-medium text-gray-600 uppercase tracking-wider border-r-2 border-gray-300 sticky left-0 bg-gray-50 z-10" style={{ minWidth: '250px', width: '250px' }}>
+                  <th className="px-4 py-3 border-r-2 border-gray-300 sticky top-0 left-0 bg-gray-50 z-30" style={{ minWidth: '250px', width: '250px' }}>
+                    {/* Empty cell for Epic column */}
+                  </th>
+                  {showBackendSprints && (
+                    <th 
+                      colSpan={backendSprints.length}
+                      className="px-4 py-3 bg-green-100 text-green-800 text-center font-bold border-b border-green-200 sticky top-0 z-30"
+                    >
+                      Backend Team Sprints
+                    </th>
+                  )}
+                  {showAndroidSprints && (
+                    <th 
+                      colSpan={androidSprints.length}
+                      className="px-4 py-3 bg-blue-100 text-blue-800 text-center font-bold border-b border-blue-200 sticky top-0 z-30"
+                    >
+                      Android Team Sprints
+                    </th>
+                  )}
+                  {showIosSprints && (
+                    <th 
+                      colSpan={iosSprints.length}
+                      className="px-4 py-3 bg-orange-100 text-orange-800 text-center font-bold border-b border-orange-200 sticky top-0 z-30"
+                    >
+                      iOS Team Sprints
+                    </th>
+                  )}
+                </tr>
+                
+                {/* Sprint Names Row */}
+                <tr>
+                  <th className="px-4 py-4 text-left text-xs font-medium text-gray-600 uppercase tracking-wider border-r-2 border-gray-300 sticky top-[48px] left-0 bg-gray-50 z-20" style={{ minWidth: '250px', width: '250px' }}>
                     Epic
                   </th>
                   
                   {/* Backend Sprint Columns */}
-                  {backendSprints.map((sprint, index) => (
-                    <th
-                      key={`backend_${sprint.id}`}
-                      className={`px-2 py-4 text-center text-xs font-medium text-gray-600 uppercase tracking-wider ${
-                        index === backendSprints.length - 1 ? 'border-r-4 border-gray-400' : ''
-                      }`}
-                      title={sprint.name || 'Unnamed Sprint'}
-                      style={{ minWidth: '80px', width: '80px' }}
-                    >
-                      {sprint.name || 'Sprint'}
-                    </th>
-                  ))}
+                  {showBackendSprints && backendSprints.map((sprint, index) => {
+                    const balance = calculateSprintBalance('backend', sprint.id)
+                    const isNegative = balance < 0
+                    const isLastInGroup = index === backendSprints.length - 1
+                    const shouldShowBorder = isLastInGroup && (showAndroidSprints || showIosSprints)
+                    return (
+                      <th
+                        key={`backend_${sprint.id}`}
+                        className={`px-2 py-3 text-center ${
+                          shouldShowBorder ? 'border-r-4 border-gray-400' : ''
+                        } ${isNegative ? 'bg-red-50' : 'bg-gray-50'} sticky top-[48px] z-20`}
+                        title={sprint.name || 'Unnamed Sprint'}
+                        style={{ minWidth: '80px', width: '80px' }}
+                      >
+                        <div className="flex flex-col gap-1">
+                          <div className="text-xs font-medium text-gray-700 uppercase tracking-wider">
+                            {sprint.name || 'Sprint'}
+                          </div>
+                          <div className={`text-xs font-semibold ${isNegative ? 'text-red-600' : 'text-green-600'}`}>
+                            Bal: {balance}
+                          </div>
+                        </div>
+                      </th>
+                    )
+                  })}
                   
                   {/* Android Sprint Columns */}
-                  {androidSprints.map((sprint, index) => (
-                    <th
-                      key={`android_${sprint.id}`}
-                      className={`px-2 py-4 text-center text-xs font-medium text-gray-600 uppercase tracking-wider ${
-                        index === androidSprints.length - 1 ? 'border-r-4 border-gray-400' : ''
-                      }`}
-                      title={sprint.name || 'Unnamed Sprint'}
-                      style={{ minWidth: '80px', width: '80px' }}
-                    >
-                      {sprint.name || 'Sprint'}
-                    </th>
-                  ))}
+                  {showAndroidSprints && androidSprints.map((sprint, index) => {
+                    const balance = calculateSprintBalance('android', sprint.id)
+                    const isNegative = balance < 0
+                    const isLastInGroup = index === androidSprints.length - 1
+                    const shouldShowBorder = isLastInGroup && showIosSprints
+                    return (
+                      <th
+                        key={`android_${sprint.id}`}
+                        className={`px-2 py-3 text-center ${
+                          shouldShowBorder ? 'border-r-4 border-gray-400' : ''
+                        } ${isNegative ? 'bg-red-50' : 'bg-gray-50'} sticky top-[48px] z-20`}
+                        title={sprint.name || 'Unnamed Sprint'}
+                        style={{ minWidth: '80px', width: '80px' }}
+                      >
+                        <div className="flex flex-col gap-1">
+                          <div className="text-xs font-medium text-gray-700 uppercase tracking-wider">
+                            {sprint.name || 'Sprint'}
+                          </div>
+                          <div className={`text-xs font-semibold ${isNegative ? 'text-red-600' : 'text-green-600'}`}>
+                            Bal: {balance}
+                          </div>
+                        </div>
+                      </th>
+                    )
+                  })}
                   
                   {/* iOS Sprint Columns */}
-                  {iosSprints.map((sprint) => (
-                    <th
-                      key={`ios_${sprint.id}`}
-                      className="px-2 py-4 text-center text-xs font-medium text-gray-600 uppercase tracking-wider"
-                      title={sprint.name || 'Unnamed Sprint'}
-                      style={{ minWidth: '80px', width: '80px' }}
-                    >
-                      {sprint.name || 'Sprint'}
-                    </th>
-                  ))}
+                  {showIosSprints && iosSprints.map((sprint) => {
+                    const balance = calculateSprintBalance('ios', sprint.id)
+                    const isNegative = balance < 0
+                    return (
+                      <th
+                        key={`ios_${sprint.id}`}
+                        className={`px-2 py-3 text-center ${isNegative ? 'bg-red-50' : 'bg-gray-50'} sticky top-[48px] z-20`}
+                        title={sprint.name || 'Unnamed Sprint'}
+                        style={{ minWidth: '80px', width: '80px' }}
+                      >
+                        <div className="flex flex-col gap-1">
+                          <div className="text-xs font-medium text-gray-700 uppercase tracking-wider">
+                            {sprint.name || 'Sprint'}
+                          </div>
+                          <div className={`text-xs font-semibold ${isNegative ? 'text-red-600' : 'text-green-600'}`}>
+                            Bal: {balance}
+                          </div>
+                        </div>
+                      </th>
+                    )
+                  })}
                 </tr>
               </thead>
               <tbody className="bg-white">
-                {projects.map((project) => (
-                  <tr key={project.id} className="hover:bg-gray-50 transition-colors border-b border-gray-100">
+                {projects.map((project, index) => (
+                  <tr key={project.id} className={`${index % 2 === 1 ? 'bg-gray-50/50' : ''} hover:bg-blue-50 transition-colors border-b border-gray-100`}>
                     <td className="px-4 py-4 border-r-2 border-gray-300 sticky left-0 bg-white z-10" style={{ minWidth: '250px', width: '250px' }}>
                       <span className="text-sm font-medium text-gray-900">{project.epic || 'Unnamed Epic'}</span>
                     </td>
                     
                     {/* Backend Sprint Columns */}
-                    {backendSprints.map((sprint, index) => {
+                    {showBackendSprints && backendSprints.map((sprint, index) => {
                       const value = parseFloat(project[`backend_${sprint.id}`]) || 0
                       const hasValue = value > 0
-                      const isLast = index === backendSprints.length - 1
+                      const isLastInGroup = index === backendSprints.length - 1
+                      const shouldShowBorder = isLastInGroup && (showAndroidSprints || showIosSprints)
                       return (
                         <td 
                           key={`backend_${sprint.id}`} 
-                          className={`px-2 py-4 ${isLast ? 'border-r-4 border-gray-400' : ''} ${hasValue ? 'bg-green-50' : ''}`} 
+                          className={`px-2 py-4 ${shouldShowBorder ? 'border-r-4 border-gray-400' : ''} ${hasValue ? 'bg-green-50' : ''}`} 
                           style={{ minWidth: '80px', width: '80px' }}
                         >
                           <input
                             type="number"
-                            value={formatNumber(project[`backend_${sprint.id}`])}
+                            value={(() => {
+                              const val = formatNumber(project[`backend_${sprint.id}`])
+                              const num = parseFloat(val)
+                              return (val === '' || val === null || val === undefined || num === 0) ? '' : val
+                            })()}
                             onChange={(e) => handleCellChange(project.id, `backend_${sprint.id}`, e.target.value)}
-                            className="w-full px-1 py-1 text-sm bg-transparent border-0 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-center"
+                            className="w-full px-1 py-1 text-sm bg-transparent border-0 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-center placeholder:text-gray-200"
                             placeholder="0"
                             min="0"
                             step="0.5"
@@ -860,21 +987,26 @@ function Dashboard({ saveFunctionRef, quarterId }) {
                     })}
                     
                     {/* Android Sprint Columns */}
-                    {androidSprints.map((sprint, index) => {
+                    {showAndroidSprints && androidSprints.map((sprint, index) => {
                       const value = parseFloat(project[`android_${sprint.id}`]) || 0
                       const hasValue = value > 0
-                      const isLast = index === androidSprints.length - 1
+                      const isLastInGroup = index === androidSprints.length - 1
+                      const shouldShowBorder = isLastInGroup && showIosSprints
                       return (
                         <td 
                           key={`android_${sprint.id}`} 
-                          className={`px-2 py-4 ${isLast ? 'border-r-4 border-gray-400' : ''} ${hasValue ? 'bg-blue-50' : ''}`} 
+                          className={`px-2 py-4 ${shouldShowBorder ? 'border-r-4 border-gray-400' : ''} ${hasValue ? 'bg-blue-50' : ''}`} 
                           style={{ minWidth: '80px', width: '80px' }}
                         >
                           <input
                             type="number"
-                            value={formatNumber(project[`android_${sprint.id}`])}
+                            value={(() => {
+                              const val = formatNumber(project[`android_${sprint.id}`])
+                              const num = parseFloat(val)
+                              return (val === '' || val === null || val === undefined || num === 0) ? '' : val
+                            })()}
                             onChange={(e) => handleCellChange(project.id, `android_${sprint.id}`, e.target.value)}
-                            className="w-full px-1 py-1 text-sm bg-transparent border-0 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-center"
+                            className="w-full px-1 py-1 text-sm bg-transparent border-0 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-center placeholder:text-gray-200"
                             placeholder="0"
                             min="0"
                             step="0.5"
@@ -884,7 +1016,7 @@ function Dashboard({ saveFunctionRef, quarterId }) {
                     })}
                     
                     {/* iOS Sprint Columns */}
-                    {iosSprints.map((sprint) => {
+                    {showIosSprints && iosSprints.map((sprint) => {
                       const value = parseFloat(project[`ios_${sprint.id}`]) || 0
                       const hasValue = value > 0
                       return (
@@ -895,9 +1027,13 @@ function Dashboard({ saveFunctionRef, quarterId }) {
                         >
                           <input
                             type="number"
-                            value={formatNumber(project[`ios_${sprint.id}`])}
+                            value={(() => {
+                              const val = formatNumber(project[`ios_${sprint.id}`])
+                              const num = parseFloat(val)
+                              return (val === '' || val === null || val === undefined || num === 0) ? '' : val
+                            })()}
                             onChange={(e) => handleCellChange(project.id, `ios_${sprint.id}`, e.target.value)}
-                            className="w-full px-1 py-1 text-sm bg-transparent border-0 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-center"
+                            className="w-full px-1 py-1 text-sm bg-transparent border-0 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-center placeholder:text-gray-200"
                             placeholder="0"
                             min="0"
                             step="0.5"
@@ -907,33 +1043,42 @@ function Dashboard({ saveFunctionRef, quarterId }) {
                     })}
                   </tr>
                 ))}
-                
+              </tbody>
+              <tfoot>
                 {/* Summary Row with Footers */}
-                <tr className="bg-gray-100 font-semibold border-t-2 border-gray-300 border-b border-gray-100">
-                  <td className="px-4 py-4 border-r-2 border-gray-300 sticky left-0 bg-gray-100 z-10" style={{ minWidth: '250px', width: '250px' }}>
-                    <span className="text-sm text-gray-700">Summary</span>
+                <tr className="bg-white font-bold border-t-2 border-gray-300 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+                  <td className="px-4 py-3 border-r-2 border-gray-300 sticky bottom-[80px] left-0 bg-white z-40 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.1)]" style={{ minWidth: '250px', width: '250px' }}>
+                    <div className="flex flex-col items-end space-y-1">
+                      <span className="text-xs text-gray-500">Allocated</span>
+                      <span className="text-xs text-gray-500">Capacity</span>
+                      <span className="text-sm font-bold text-gray-900">Balance</span>
+                    </div>
                   </td>
                   
                   {/* Backend Sprint Footers */}
-                  {backendSprints.map((sprint, index) => {
+                  {showBackendSprints && backendSprints.map((sprint, index) => {
                     const allocated = calculateSprintAllocated('backend', sprint.id) || 0
+                    const capacity = getSprintCapacity('backend', sprint.id) || 0
+                    const balance = calculateSprintBalance('backend', sprint.id)
                     const hasValue = allocated > 0
-                    const isLast = index === backendSprints.length - 1
+                    const isLastInGroup = index === backendSprints.length - 1
+                    const shouldShowBorder = isLastInGroup && (showAndroidSprints || showIosSprints)
                     return (
                       <td 
                         key={`backend_footer_${sprint.id}`} 
-                        className={`px-2 py-4 ${isLast ? 'border-r-4 border-gray-400' : ''} text-center ${hasValue ? 'bg-green-50' : ''}`} 
+                        className={`px-2 py-3 ${shouldShowBorder ? 'border-r-4 border-gray-400' : ''} text-center ${hasValue ? 'bg-green-50' : 'bg-white'} sticky bottom-[80px] z-30`} 
                         style={{ minWidth: '80px', width: '80px' }}
                       >
-                        <div className="text-xs space-y-1">
-                          <div className="text-gray-600">Allocated: {allocated}</div>
-                          <div className="text-gray-600">Capacity: {getSprintCapacity('backend', sprint.id) || 0}</div>
-                          <div className={`font-semibold ${
-                            calculateSprintBalance('backend', sprint.id) < 0 ? 'text-red-600' : 
-                            calculateSprintBalance('backend', sprint.id) > 0 ? 'text-green-600' : 
+                        <div className="flex flex-col space-y-0">
+                          <div className="text-xs text-gray-500">{allocated}</div>
+                          <div className="text-xs text-gray-500">{capacity}</div>
+                          <div className="border-t border-gray-200 my-1"></div>
+                          <div className={`text-sm font-bold ${
+                            balance < 0 ? 'text-red-600' : 
+                            balance > 0 ? 'text-green-600' : 
                             'text-gray-900'
                           }`}>
-                            Balance: {calculateSprintBalance('backend', sprint.id)}
+                            {balance}
                           </div>
                         </div>
                       </td>
@@ -941,25 +1086,29 @@ function Dashboard({ saveFunctionRef, quarterId }) {
                   })}
                   
                   {/* Android Sprint Footers */}
-                  {androidSprints.map((sprint, index) => {
+                  {showAndroidSprints && androidSprints.map((sprint, index) => {
                     const allocated = calculateSprintAllocated('android', sprint.id) || 0
+                    const capacity = getSprintCapacity('android', sprint.id) || 0
+                    const balance = calculateSprintBalance('android', sprint.id)
                     const hasValue = allocated > 0
-                    const isLast = index === androidSprints.length - 1
+                    const isLastInGroup = index === androidSprints.length - 1
+                    const shouldShowBorder = isLastInGroup && showIosSprints
                     return (
                       <td 
                         key={`android_footer_${sprint.id}`} 
-                        className={`px-2 py-4 ${isLast ? 'border-r-4 border-gray-400' : ''} text-center ${hasValue ? 'bg-blue-50' : ''}`} 
+                        className={`px-2 py-3 ${shouldShowBorder ? 'border-r-4 border-gray-400' : ''} text-center ${hasValue ? 'bg-blue-50' : 'bg-white'} sticky bottom-[80px] z-30`} 
                         style={{ minWidth: '80px', width: '80px' }}
                       >
-                        <div className="text-xs space-y-1">
-                          <div className="text-gray-600">Allocated: {allocated}</div>
-                          <div className="text-gray-600">Capacity: {getSprintCapacity('android', sprint.id) || 0}</div>
-                          <div className={`font-semibold ${
-                            calculateSprintBalance('android', sprint.id) < 0 ? 'text-red-600' : 
-                            calculateSprintBalance('android', sprint.id) > 0 ? 'text-green-600' : 
+                        <div className="flex flex-col space-y-0">
+                          <div className="text-xs text-gray-500">{allocated}</div>
+                          <div className="text-xs text-gray-500">{capacity}</div>
+                          <div className="border-t border-gray-200 my-1"></div>
+                          <div className={`text-sm font-bold ${
+                            balance < 0 ? 'text-red-600' : 
+                            balance > 0 ? 'text-green-600' : 
                             'text-gray-900'
                           }`}>
-                            Balance: {calculateSprintBalance('android', sprint.id)}
+                            {balance}
                           </div>
                         </div>
                       </td>
@@ -967,31 +1116,34 @@ function Dashboard({ saveFunctionRef, quarterId }) {
                   })}
                   
                   {/* iOS Sprint Footers */}
-                  {iosSprints.map((sprint) => {
+                  {showIosSprints && iosSprints.map((sprint) => {
                     const allocated = calculateSprintAllocated('ios', sprint.id) || 0
+                    const capacity = getSprintCapacity('ios', sprint.id) || 0
+                    const balance = calculateSprintBalance('ios', sprint.id)
                     const hasValue = allocated > 0
                     return (
                       <td 
                         key={`ios_footer_${sprint.id}`} 
-                        className={`px-2 py-4 text-center ${hasValue ? 'bg-orange-50' : ''}`} 
+                        className={`px-2 py-3 text-center ${hasValue ? 'bg-orange-50' : 'bg-white'} sticky bottom-[80px] z-30`} 
                         style={{ minWidth: '80px', width: '80px' }}
                       >
-                        <div className="text-xs space-y-1">
-                          <div className="text-gray-600">Allocated: {allocated}</div>
-                          <div className="text-gray-600">Capacity: {getSprintCapacity('ios', sprint.id) || 0}</div>
-                          <div className={`font-semibold ${
-                            calculateSprintBalance('ios', sprint.id) < 0 ? 'text-red-600' : 
-                            calculateSprintBalance('ios', sprint.id) > 0 ? 'text-green-600' : 
+                        <div className="flex flex-col space-y-0">
+                          <div className="text-xs text-gray-500">{allocated}</div>
+                          <div className="text-xs text-gray-500">{capacity}</div>
+                          <div className="border-t border-gray-200 my-1"></div>
+                          <div className={`text-sm font-bold ${
+                            balance < 0 ? 'text-red-600' : 
+                            balance > 0 ? 'text-green-600' : 
                             'text-gray-900'
                           }`}>
-                            Balance: {calculateSprintBalance('ios', sprint.id)}
+                            {balance}
                           </div>
                         </div>
                       </td>
                     )
                   })}
                 </tr>
-              </tbody>
+              </tfoot>
             </table>
           </div>
         </div>
@@ -1035,6 +1187,44 @@ function Dashboard({ saveFunctionRef, quarterId }) {
             onDeleteSprint={handleDeleteSprint}
             formatNumber={formatNumber}
           />
+        </div>
+      </div>
+
+      {/* Sticky Footer Status Bar */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-40">
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex items-center justify-center gap-8">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-gray-700">Backend:</span>
+              <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold ${
+                calculateBalance('backend') < 0 
+                  ? 'bg-red-100 text-red-700' 
+                  : 'bg-green-100 text-green-700'
+              }`}>
+                {calculateBalance('backend')}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-gray-700">Android:</span>
+              <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold ${
+                calculateBalance('android') < 0 
+                  ? 'bg-red-100 text-red-700' 
+                  : 'bg-green-100 text-green-700'
+              }`}>
+                {calculateBalance('android')}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-gray-700">iOS:</span>
+              <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold ${
+                calculateBalance('ios') < 0 
+                  ? 'bg-red-100 text-red-700' 
+                  : 'bg-green-100 text-green-700'
+              }`}>
+                {calculateBalance('ios')}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
     </div>

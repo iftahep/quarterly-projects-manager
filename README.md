@@ -22,11 +22,21 @@ A comprehensive React application built with Vite and Tailwind CSS for managing 
 
 ### Sprint Allocation Table
 - **Dynamic Sprint Columns**: Automatically generated based on sprints defined in Resource Planning
+- **Visual Grouping**: Super Headers row with team grouping (Backend, Android, iOS) for better organization
+- **Column Visibility Toggle**: Show/hide sprint columns by team using checkboxes above the table
 - **Visual Separators**: Clear separation between Backend, Android, and iOS sprint groups
 - **Smart Coloring**: 
   - Only cells with allocated hours (> 0) are colored
   - Empty cells remain gray for better readability
   - Color coding: Backend (green), Android (blue), iOS (orange)
+- **Smart Sprint Headers**: 
+  - Display sprint name and balance in header cells
+  - Red background for negative balance, green for positive
+  - Sticky headers that stay visible while scrolling
+- **Sticky Footer Row**: 
+  - Summary row with Allocated, Capacity, and Balance for each sprint
+  - Stays visible at bottom of table (above global status bar)
+  - Clean layout with labels in first column, numbers in data cells
 - **Sprint Summary Footers**: 
   - Total Allocated per sprint
   - Sprint Capacity
@@ -42,12 +52,14 @@ A comprehensive React application built with Vite and Tailwind CSS for managing 
 - **Sprint Management**: 
   - Add/Delete sprints dynamically
   - Set capacity for each sprint
+  - Clean delete buttons: Icon-only, hidden by default, appear on row hover
 - **Real-time Updates**: Changes automatically reflect in Sprint Allocation table
 
 ### Data Persistence
-- **LocalStorage**: All data automatically saved to browser's local storage
+- **Backend API**: All data stored in SQLite database via Node.js/Express backend
+- **Multi-Quarter Management**: Create, activate, and switch between multiple quarters
 - **Save Changes Button**: Manual save with toast notification
-- **Auto-load**: Data automatically loads on application start
+- **Auto-load**: Data automatically loads when switching quarters
 
 ## Getting Started
 
@@ -139,13 +151,21 @@ Main component containing:
 
 ## Data Storage
 
-All data is stored in browser's localStorage under the key `quarterlyProjectsData`, including:
+All data is stored in SQLite database via the backend API, including:
 - Projects list with all fields
 - Sprint definitions (Backend, Android, iOS)
 - Sprint allocations per project
+- Multiple quarters with independent data sets
 
 ## Recent Updates
 
+- ✅ **Sticky Footer Rows**: Summary rows in Projects and Sprint Allocation tables stay visible while scrolling
+- ✅ **Smart Sprint Headers**: Headers show capacity and balance with color-coded feedback
+- ✅ **Column Visibility Toggle**: Show/hide sprint columns by team to manage wide tables
+- ✅ **Visual Team Grouping**: Super Headers row groups sprints by team (Backend, Android, iOS)
+- ✅ **Clean Summary Footer**: Redesigned Sprint Allocation footer with labels in first column
+- ✅ **Subtle Delete Buttons**: Icon-only delete buttons in Resource Planning tables, appear on hover
+- ✅ **Sticky Footer Status Bar**: Global status bar showing total balances for all teams
 - ✅ Project reordering with up/down arrow buttons
 - ✅ Clean table UI with improved spacing and minimal borders
 - ✅ Dynamic column widths (Epic: 300px, others optimized)

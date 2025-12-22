@@ -79,6 +79,12 @@ function TeamTab({
                 <th className={`px-2 py-4 text-center text-xs font-medium text-gray-600 uppercase tracking-wider ${config.bgColor}`} style={{ minWidth: '90px', width: '90px' }}>
                   {config.label} Effort
                 </th>
+                <th className={`px-2 py-4 text-center text-xs font-medium text-gray-600 uppercase tracking-wider ${config.bgColor}`} style={{ minWidth: '100px', width: '100px' }}>
+                  Allocated
+                </th>
+                <th className={`px-2 py-4 text-center text-xs font-medium text-gray-600 uppercase tracking-wider border-r-4 border-gray-300 ${config.bgColor}`} style={{ minWidth: '100px', width: '100px' }}>
+                  Balance
+                </th>
                 {sprints.map((sprint, index) => {
                   const balance = calculateSprintBalance(team, sprint.id)
                   const isNegative = balance < 0
@@ -199,6 +205,24 @@ function TeamTab({
                     />
                   </td>
                   
+                  {/* Allocated */}
+                  <td className={`px-2 py-4 ${config.bgColor} text-center`} style={{ minWidth: '100px', width: '100px' }}>
+                    <span className="text-sm font-medium text-gray-900">
+                      {calculateProjectAllocated(project, team) || 0}
+                    </span>
+                  </td>
+                  
+                  {/* Balance */}
+                  <td className={`px-2 py-4 border-r-4 border-gray-300 ${config.bgColor} text-center`} style={{ minWidth: '100px', width: '100px' }}>
+                    <span className={`text-sm font-semibold ${
+                      calculateProjectBalance(project, team) < 0 ? 'text-red-600' : 
+                      calculateProjectBalance(project, team) > 0 ? 'text-yellow-600' : 
+                      'text-green-600'
+                    }`}>
+                      {calculateProjectBalance(project, team)}
+                    </span>
+                  </td>
+                  
                   {/* Sprint Columns */}
                   {sprints.map((sprint, index) => {
                     const value = parseFloat(project[`${team}_${sprint.id}`]) || 0
@@ -242,6 +266,20 @@ function TeamTab({
                 {/* Team Effort Total */}
                 <td className={`px-2 py-4 ${config.bgColor} text-center sticky bottom-[80px] z-30`} style={{ minWidth: '90px', width: '90px' }}>
                   <span className="text-sm text-gray-900">{calculateTotal(team) || 0}</span>
+                </td>
+                
+                {/* Allocated Total */}
+                <td className={`px-2 py-4 ${config.bgColor} text-center sticky bottom-[80px] z-30`} style={{ minWidth: '100px', width: '100px' }}>
+                  <span className="text-sm text-gray-900">
+                    {projects.reduce((sum, project) => sum + calculateProjectAllocated(project, team), 0) || 0}
+                  </span>
+                </td>
+                
+                {/* Balance Total */}
+                <td className={`px-2 py-4 border-r-4 border-gray-300 ${config.bgColor} text-center sticky bottom-[80px] z-30`} style={{ minWidth: '100px', width: '100px' }}>
+                  <span className="text-sm text-gray-900">
+                    {projects.reduce((sum, project) => sum + calculateProjectBalance(project, team), 0) || 0}
+                  </span>
                 </td>
                 
                 {/* Sprint Totals */}

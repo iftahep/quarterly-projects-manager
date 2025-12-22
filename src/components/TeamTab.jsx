@@ -22,21 +22,24 @@ function TeamTab({
   const teamConfig = {
     backend: {
       label: 'Backend',
-      bgColor: 'bg-green-50',
+      bgColor: 'bg-green-100', // For Effort, Allocated, Balance columns
+      bgColorSprint: 'bg-green-200', // For Sprint columns
       textColor: 'text-green-800',
-      borderColor: 'border-green-200'
+      borderColor: 'border-green-300'
     },
     android: {
       label: 'Android',
-      bgColor: 'bg-blue-50',
+      bgColor: 'bg-blue-100', // For Effort, Allocated, Balance columns
+      bgColorSprint: 'bg-blue-200', // For Sprint columns
       textColor: 'text-blue-800',
-      borderColor: 'border-blue-200'
+      borderColor: 'border-blue-300'
     },
     ios: {
       label: 'iOS',
-      bgColor: 'bg-orange-50',
+      bgColor: 'bg-orange-100', // For Effort, Allocated, Balance columns
+      bgColorSprint: 'bg-orange-200', // For Sprint columns
       textColor: 'text-orange-800',
-      borderColor: 'border-orange-200'
+      borderColor: 'border-orange-300'
     }
   }
 
@@ -231,7 +234,7 @@ function TeamTab({
                     return (
                       <td 
                         key={`sprint_${sprint.id}`} 
-                        className={`px-2 py-4 ${isLast ? 'border-r-2 border-gray-300' : ''} ${hasValue ? config.bgColor : ''}`} 
+                        className={`px-2 py-4 ${isLast ? 'border-r-2 border-gray-300' : ''} ${hasValue ? config.bgColorSprint : ''}`} 
                         style={{ minWidth: '80px', width: '80px' }}
                       >
                         <input
@@ -292,7 +295,7 @@ function TeamTab({
                   return (
                     <td 
                       key={`footer_${sprint.id}`} 
-                      className={`px-2 py-3 ${isLast ? 'border-r-2 border-gray-300' : ''} text-center ${hasValue ? config.bgColor : 'bg-white'} sticky bottom-[80px] z-30`} 
+                      className={`px-2 py-3 ${isLast ? 'border-r-2 border-gray-300' : ''} text-center ${hasValue ? config.bgColorSprint : 'bg-white'} sticky bottom-[80px] z-30`} 
                       style={{ minWidth: '80px', width: '80px' }}
                     >
                       <div className="flex flex-col space-y-0">

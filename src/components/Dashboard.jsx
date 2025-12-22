@@ -530,7 +530,7 @@ function Dashboard({ saveFunctionRef, quarterId }) {
                 <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold ${
                   calculateBalance('android') < 0 
                     ? 'bg-red-100 text-red-700' 
-                    : 'bg-green-100 text-green-700'
+                    : 'bg-blue-100 text-blue-700'
                 }`}>
                   {calculateBalance('android')}
                 </span>
@@ -540,7 +540,7 @@ function Dashboard({ saveFunctionRef, quarterId }) {
                 <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold ${
                   calculateBalance('ios') < 0 
                     ? 'bg-red-100 text-red-700' 
-                    : 'bg-green-100 text-green-700'
+                    : 'bg-orange-100 text-orange-700'
                 }`}>
                   {calculateBalance('ios')}
                 </span>

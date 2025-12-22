@@ -146,35 +146,35 @@ function OverviewTab({
                   Tech Owner
                 </th>
                 {/* Backend Team Columns */}
-                <th className="px-2 py-4 text-center text-xs font-medium text-gray-600 uppercase tracking-wider bg-green-50" style={{ minWidth: '90px', width: '90px' }}>
+                <th className="px-2 py-4 text-center text-xs font-medium text-gray-600 uppercase tracking-wider bg-green-100" style={{ minWidth: '90px', width: '90px' }}>
                   Backend
                 </th>
-                <th className="px-2 py-4 text-center text-xs font-medium text-gray-600 uppercase tracking-wider bg-green-50" style={{ minWidth: '100px', width: '100px' }}>
+                <th className="px-2 py-4 text-center text-xs font-medium text-gray-600 uppercase tracking-wider bg-green-100" style={{ minWidth: '100px', width: '100px' }}>
                   Backend Allocated
                 </th>
-                <th className="px-2 py-4 text-center text-xs font-medium text-gray-600 uppercase tracking-wider border-r-4 border-gray-400 bg-green-50" style={{ minWidth: '100px', width: '100px' }}>
+                <th className="px-2 py-4 text-center text-xs font-medium text-gray-600 uppercase tracking-wider border-r-4 border-gray-400 bg-green-100" style={{ minWidth: '100px', width: '100px' }}>
                   Backend Balance
                 </th>
                 
                 {/* Android Team Columns */}
-                <th className="px-2 py-4 text-center text-xs font-medium text-gray-600 uppercase tracking-wider bg-blue-50" style={{ minWidth: '90px', width: '90px' }}>
+                <th className="px-2 py-4 text-center text-xs font-medium text-gray-600 uppercase tracking-wider bg-blue-100" style={{ minWidth: '90px', width: '90px' }}>
                   Android
                 </th>
-                <th className="px-2 py-4 text-center text-xs font-medium text-gray-600 uppercase tracking-wider bg-blue-50" style={{ minWidth: '100px', width: '100px' }}>
+                <th className="px-2 py-4 text-center text-xs font-medium text-gray-600 uppercase tracking-wider bg-blue-100" style={{ minWidth: '100px', width: '100px' }}>
                   Android Allocated
                 </th>
-                <th className="px-2 py-4 text-center text-xs font-medium text-gray-600 uppercase tracking-wider border-r-4 border-gray-400 bg-blue-50" style={{ minWidth: '100px', width: '100px' }}>
+                <th className="px-2 py-4 text-center text-xs font-medium text-gray-600 uppercase tracking-wider border-r-4 border-gray-400 bg-blue-100" style={{ minWidth: '100px', width: '100px' }}>
                   Android Balance
                 </th>
                 
                 {/* iOS Team Columns */}
-                <th className="px-2 py-4 text-center text-xs font-medium text-gray-600 uppercase tracking-wider bg-orange-50" style={{ minWidth: '90px', width: '90px' }}>
+                <th className="px-2 py-4 text-center text-xs font-medium text-gray-600 uppercase tracking-wider bg-orange-100" style={{ minWidth: '90px', width: '90px' }}>
                   iOS
                 </th>
-                <th className="px-2 py-4 text-center text-xs font-medium text-gray-600 uppercase tracking-wider bg-orange-50" style={{ minWidth: '100px', width: '100px' }}>
+                <th className="px-2 py-4 text-center text-xs font-medium text-gray-600 uppercase tracking-wider bg-orange-100" style={{ minWidth: '100px', width: '100px' }}>
                   iOS Allocated
                 </th>
-                <th className="px-2 py-4 text-center text-xs font-medium text-gray-600 uppercase tracking-wider border-r-2 border-gray-300 bg-orange-50" style={{ minWidth: '100px', width: '100px' }}>
+                <th className="px-2 py-4 text-center text-xs font-medium text-gray-600 uppercase tracking-wider border-r-2 border-gray-300 bg-orange-100" style={{ minWidth: '100px', width: '100px' }}>
                   iOS Balance
                 </th>
               </tr>
@@ -259,7 +259,7 @@ function OverviewTab({
                   </td>
                   
                   {/* Backend Team Columns */}
-                  <td className="px-2 py-4 bg-green-50" style={{ minWidth: '90px', width: '90px' }}>
+                  <td className="px-2 py-4 bg-green-100" style={{ minWidth: '90px', width: '90px' }}>
                     <input
                       type="number"
                       value={(() => {
@@ -275,13 +275,13 @@ function OverviewTab({
                     />
                   </td>
                   
-                  <td className="px-2 py-4 bg-green-50 text-center" style={{ minWidth: '100px', width: '100px' }}>
+                  <td className="px-2 py-4 bg-green-100 text-center" style={{ minWidth: '100px', width: '100px' }}>
                     <span className="text-sm font-medium text-gray-900">
                       {calculateProjectAllocated(project, 'backend') || 0}
                     </span>
                   </td>
                   
-                  <td className="px-2 py-4 border-r-4 border-gray-400 bg-green-50 text-center" style={{ minWidth: '100px', width: '100px' }}>
+                  <td className="px-2 py-4 border-r-4 border-gray-400 bg-green-100 text-center" style={{ minWidth: '100px', width: '100px' }}>
                     <span className={`text-sm font-semibold ${
                       calculateProjectBalance(project, 'backend') < 0 ? 'text-red-600' : 
                       calculateProjectBalance(project, 'backend') > 0 ? 'text-yellow-600' : 
@@ -292,7 +292,7 @@ function OverviewTab({
                   </td>
                   
                   {/* Android Team Columns */}
-                  <td className="px-2 py-4 bg-blue-50" style={{ minWidth: '90px', width: '90px' }}>
+                  <td className="px-2 py-4 bg-blue-100" style={{ minWidth: '90px', width: '90px' }}>
                     <input
                       type="number"
                       value={(() => {
@@ -308,13 +308,13 @@ function OverviewTab({
                     />
                   </td>
                   
-                  <td className="px-2 py-4 bg-blue-50 text-center" style={{ minWidth: '100px', width: '100px' }}>
+                  <td className="px-2 py-4 bg-blue-100 text-center" style={{ minWidth: '100px', width: '100px' }}>
                     <span className="text-sm font-medium text-gray-900">
                       {calculateProjectAllocated(project, 'android') || 0}
                     </span>
                   </td>
                   
-                  <td className="px-2 py-4 border-r-4 border-gray-400 bg-blue-50 text-center" style={{ minWidth: '100px', width: '100px' }}>
+                  <td className="px-2 py-4 border-r-4 border-gray-400 bg-blue-100 text-center" style={{ minWidth: '100px', width: '100px' }}>
                     <span className={`text-sm font-semibold ${
                       calculateProjectBalance(project, 'android') < 0 ? 'text-red-600' : 
                       calculateProjectBalance(project, 'android') > 0 ? 'text-yellow-600' : 
@@ -325,7 +325,7 @@ function OverviewTab({
                   </td>
                   
                   {/* iOS Team Columns */}
-                  <td className="px-2 py-4 bg-orange-50" style={{ minWidth: '90px', width: '90px' }}>
+                  <td className="px-2 py-4 bg-orange-100" style={{ minWidth: '90px', width: '90px' }}>
                     <input
                       type="number"
                       value={(() => {
@@ -341,13 +341,13 @@ function OverviewTab({
                     />
                   </td>
                   
-                  <td className="px-2 py-4 bg-orange-50 text-center" style={{ minWidth: '100px', width: '100px' }}>
+                  <td className="px-2 py-4 bg-orange-100 text-center" style={{ minWidth: '100px', width: '100px' }}>
                     <span className="text-sm font-medium text-gray-900">
                       {calculateProjectAllocated(project, 'ios') || 0}
                     </span>
                   </td>
                   
-                  <td className="px-2 py-4 border-r-2 border-gray-300 bg-orange-50 text-center" style={{ minWidth: '100px', width: '100px' }}>
+                  <td className="px-2 py-4 border-r-2 border-gray-300 bg-orange-100 text-center" style={{ minWidth: '100px', width: '100px' }}>
                     <span className={`text-sm font-semibold ${
                       calculateProjectBalance(project, 'ios') < 0 ? 'text-red-600' : 
                       calculateProjectBalance(project, 'ios') > 0 ? 'text-yellow-600' : 
@@ -370,45 +370,45 @@ function OverviewTab({
                 <td className="px-2 py-4 sticky bottom-[80px] bg-white z-30" style={{ minWidth: '120px', width: '120px' }}></td>
                 
                 {/* Backend Team Summary */}
-                <td className="px-2 py-4 bg-green-50 text-center sticky bottom-[80px] z-30" style={{ minWidth: '90px', width: '90px' }}>
+                <td className="px-2 py-4 bg-green-100 text-center sticky bottom-[80px] z-30" style={{ minWidth: '90px', width: '90px' }}>
                   <span className="text-sm text-gray-900">{calculateTotal('backend') || 0}</span>
                 </td>
-                <td className="px-2 py-4 bg-green-50 text-center sticky bottom-[80px] z-30" style={{ minWidth: '100px', width: '100px' }}>
+                <td className="px-2 py-4 bg-green-100 text-center sticky bottom-[80px] z-30" style={{ minWidth: '100px', width: '100px' }}>
                   <span className="text-sm text-gray-900">
                     {projects.reduce((sum, project) => sum + calculateProjectAllocated(project, 'backend'), 0) || 0}
                   </span>
                 </td>
-                <td className="px-2 py-4 border-r-4 border-gray-400 bg-green-50 text-center sticky bottom-[80px] z-30" style={{ minWidth: '100px', width: '100px' }}>
+                <td className="px-2 py-4 border-r-4 border-gray-400 bg-green-100 text-center sticky bottom-[80px] z-30" style={{ minWidth: '100px', width: '100px' }}>
                   <span className="text-sm text-gray-900">
                     {projects.reduce((sum, project) => sum + calculateProjectBalance(project, 'backend'), 0) || 0}
                   </span>
                 </td>
                 
                 {/* Android Team Summary */}
-                <td className="px-2 py-4 bg-blue-50 text-center sticky bottom-[80px] z-30" style={{ minWidth: '90px', width: '90px' }}>
+                <td className="px-2 py-4 bg-blue-100 text-center sticky bottom-[80px] z-30" style={{ minWidth: '90px', width: '90px' }}>
                   <span className="text-sm text-gray-900">{calculateTotal('android') || 0}</span>
                 </td>
-                <td className="px-2 py-4 bg-blue-50 text-center sticky bottom-[80px] z-30" style={{ minWidth: '100px', width: '100px' }}>
+                <td className="px-2 py-4 bg-blue-100 text-center sticky bottom-[80px] z-30" style={{ minWidth: '100px', width: '100px' }}>
                   <span className="text-sm text-gray-900">
                     {projects.reduce((sum, project) => sum + calculateProjectAllocated(project, 'android'), 0) || 0}
                   </span>
                 </td>
-                <td className="px-2 py-4 border-r-4 border-gray-400 bg-blue-50 text-center sticky bottom-[80px] z-30" style={{ minWidth: '100px', width: '100px' }}>
+                <td className="px-2 py-4 border-r-4 border-gray-400 bg-blue-100 text-center sticky bottom-[80px] z-30" style={{ minWidth: '100px', width: '100px' }}>
                   <span className="text-sm text-gray-900">
                     {projects.reduce((sum, project) => sum + calculateProjectBalance(project, 'android'), 0) || 0}
                   </span>
                 </td>
                 
                 {/* iOS Team Summary */}
-                <td className="px-2 py-4 bg-orange-50 text-center sticky bottom-[80px] z-30" style={{ minWidth: '90px', width: '90px' }}>
+                <td className="px-2 py-4 bg-orange-100 text-center sticky bottom-[80px] z-30" style={{ minWidth: '90px', width: '90px' }}>
                   <span className="text-sm text-gray-900">{calculateTotal('ios') || 0}</span>
                 </td>
-                <td className="px-2 py-4 bg-orange-50 text-center sticky bottom-[80px] z-30" style={{ minWidth: '100px', width: '100px' }}>
+                <td className="px-2 py-4 bg-orange-100 text-center sticky bottom-[80px] z-30" style={{ minWidth: '100px', width: '100px' }}>
                   <span className="text-sm text-gray-900">
                     {projects.reduce((sum, project) => sum + calculateProjectAllocated(project, 'ios'), 0) || 0}
                   </span>
                 </td>
-                <td className="px-2 py-4 border-r-2 border-gray-300 bg-orange-50 text-center sticky bottom-[80px] z-30" style={{ minWidth: '100px', width: '100px' }}>
+                <td className="px-2 py-4 border-r-2 border-gray-300 bg-orange-100 text-center sticky bottom-[80px] z-30" style={{ minWidth: '100px', width: '100px' }}>
                   <span className="text-sm text-gray-900">
                     {projects.reduce((sum, project) => sum + calculateProjectBalance(project, 'ios'), 0) || 0}
                   </span>
@@ -566,7 +566,7 @@ function OverviewTab({
                   {showBackendSprints && (
                     <th 
                       colSpan={backendSprints.length}
-                      className="px-4 py-3 bg-green-100 text-green-800 text-center font-bold border-b border-green-200 sticky top-0 z-30"
+                      className="px-4 py-3 bg-green-200 text-green-900 text-center font-bold border-b border-green-300 sticky top-0 z-30"
                     >
                       Backend Team Sprints
                     </th>
@@ -574,7 +574,7 @@ function OverviewTab({
                   {showAndroidSprints && (
                     <th 
                       colSpan={androidSprints.length}
-                      className="px-4 py-3 bg-blue-100 text-blue-800 text-center font-bold border-b border-blue-200 sticky top-0 z-30"
+                      className="px-4 py-3 bg-blue-200 text-blue-900 text-center font-bold border-b border-blue-300 sticky top-0 z-30"
                     >
                       Android Team Sprints
                     </th>
@@ -582,7 +582,7 @@ function OverviewTab({
                   {showIosSprints && (
                     <th 
                       colSpan={iosSprints.length}
-                      className="px-4 py-3 bg-orange-100 text-orange-800 text-center font-bold border-b border-orange-200 sticky top-0 z-30"
+                      className="px-4 py-3 bg-orange-200 text-orange-900 text-center font-bold border-b border-orange-300 sticky top-0 z-30"
                     >
                       iOS Team Sprints
                     </th>
@@ -689,7 +689,7 @@ function OverviewTab({
                       return (
                         <td 
                           key={`backend_${sprint.id}`} 
-                          className={`px-2 py-4 ${shouldShowBorder ? 'border-r-4 border-gray-400' : ''} ${hasValue ? 'bg-green-50' : ''}`} 
+                          className={`px-2 py-4 ${shouldShowBorder ? 'border-r-4 border-gray-400' : ''} ${hasValue ? 'bg-green-200' : ''}`} 
                           style={{ minWidth: '80px', width: '80px' }}
                         >
                           <input
@@ -718,7 +718,7 @@ function OverviewTab({
                       return (
                         <td 
                           key={`android_${sprint.id}`} 
-                          className={`px-2 py-4 ${shouldShowBorder ? 'border-r-4 border-gray-400' : ''} ${hasValue ? 'bg-blue-50' : ''}`} 
+                          className={`px-2 py-4 ${shouldShowBorder ? 'border-r-4 border-gray-400' : ''} ${hasValue ? 'bg-blue-200' : ''}`} 
                           style={{ minWidth: '80px', width: '80px' }}
                         >
                           <input
@@ -745,7 +745,7 @@ function OverviewTab({
                       return (
                         <td 
                           key={`ios_${sprint.id}`} 
-                          className={`px-2 py-4 ${hasValue ? 'bg-orange-50' : ''}`} 
+                          className={`px-2 py-4 ${hasValue ? 'bg-orange-200' : ''}`} 
                           style={{ minWidth: '80px', width: '80px' }}
                         >
                           <input
@@ -789,7 +789,7 @@ function OverviewTab({
                     return (
                       <td 
                         key={`backend_footer_${sprint.id}`} 
-                        className={`px-2 py-3 ${shouldShowBorder ? 'border-r-4 border-gray-400' : ''} text-center ${hasValue ? 'bg-green-50' : 'bg-white'} sticky bottom-[80px] z-30`} 
+                        className={`px-2 py-3 ${shouldShowBorder ? 'border-r-4 border-gray-400' : ''} text-center ${hasValue ? 'bg-green-200' : 'bg-white'} sticky bottom-[80px] z-30`} 
                         style={{ minWidth: '80px', width: '80px' }}
                       >
                         <div className="flex flex-col space-y-0">
@@ -819,7 +819,7 @@ function OverviewTab({
                     return (
                       <td 
                         key={`android_footer_${sprint.id}`} 
-                        className={`px-2 py-3 ${shouldShowBorder ? 'border-r-4 border-gray-400' : ''} text-center ${hasValue ? 'bg-blue-50' : 'bg-white'} sticky bottom-[80px] z-30`} 
+                        className={`px-2 py-3 ${shouldShowBorder ? 'border-r-4 border-gray-400' : ''} text-center ${hasValue ? 'bg-blue-200' : 'bg-white'} sticky bottom-[80px] z-30`} 
                         style={{ minWidth: '80px', width: '80px' }}
                       >
                         <div className="flex flex-col space-y-0">
@@ -847,7 +847,7 @@ function OverviewTab({
                     return (
                       <td 
                         key={`ios_footer_${sprint.id}`} 
-                        className={`px-2 py-3 text-center ${hasValue ? 'bg-orange-50' : 'bg-white'} sticky bottom-[80px] z-30`} 
+                        className={`px-2 py-3 text-center ${hasValue ? 'bg-orange-200' : 'bg-white'} sticky bottom-[80px] z-30`} 
                         style={{ minWidth: '80px', width: '80px' }}
                       >
                         <div className="flex flex-col space-y-0">

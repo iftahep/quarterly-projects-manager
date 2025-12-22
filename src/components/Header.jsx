@@ -18,7 +18,7 @@ function Header({ onSave }) {
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-2xl font-bold text-gray-800">
-              Quarterly Project Manager
+            Quarters Management 365Scores
             </h1>
             <p className="text-sm text-gray-600 mt-1">
               Track and manage your quarterly projects

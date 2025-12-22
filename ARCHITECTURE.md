@@ -15,9 +15,12 @@ quarterly-projects-manager/
 │   └── README.md          # Server documentation
 ├── src/                    # Frontend React application
 │   ├── components/        # React components
-│   │   ├── Dashboard.jsx  # Main dashboard with all tables
+│   │   ├── Dashboard.jsx  # Main dashboard with tabbed interface
+│   │   ├── OverviewTab.jsx # Overview tab component (complete dashboard view)
+│   │   ├── TeamTab.jsx    # Team-specific tab component (Backend/Android/iOS)
 │   │   ├── Header.jsx     # Header with save button
-│   │   └── QuarterSelector.jsx  # Quarter selection UI
+│   │   ├── QuarterSelector.jsx  # Quarter selection UI
+│   │   └── GanttModal.jsx # Gantt chart timeline visualization
 │   ├── services/          # API service layer
 │   │   └── api.js         # API client functions
 │   ├── App.jsx            # Main app component
@@ -90,18 +93,45 @@ quarterly-projects-manager/
 - Handles quarter switching
 
 #### Dashboard Component
-- Main data management interface
+- Main data management interface with **Tabbed Interface**
+- **Tab Navigation**: Switch between Overview and team-specific views (Backend, Android, iOS)
+- **Tab State**: `activeTab` state controls which tab is displayed
+- Conditionally renders:
+  - `OverviewTab` component (default) - Complete dashboard view
+  - `TeamTab` component - Team-specific focused views
+- Manages all application state:
+  - `projects`: Array of project objects (shared across all tabs)
+  - `backendSprints`: Array of backend sprint definitions
+  - `androidSprints`: Array of android sprint definitions
+  - `iosSprints`: Array of iOS sprint definitions
+  - `showBackendSprints`, `showAndroidSprints`, `showIosSprints`: Column visibility toggles
+- Handles data persistence via API
+- All tabs share the same `projects` state for real-time synchronization
+
+#### OverviewTab Component
+- Complete dashboard view (extracted from Dashboard)
 - Contains all tables:
   - Projects Table
   - Balance Summary Table
   - Sprint Allocation Table
   - Resource Planning (3 Sprint Capacity Tables)
-- Manages all application state:
-  - `projects`: Array of project objects
-  - `backendSprints`: Array of backend sprint definitions
-  - `androidSprints`: Array of android sprint definitions
-  - `iosSprints`: Array of iOS sprint definitions
-- Handles data persistence via API
+- Includes Gantt Chart Modal trigger button
+- Shows Sticky Footer Status Bar with total balances
+
+#### TeamTab Component
+- Unified team view for Backend, Android, or iOS
+- Reusable component that accepts `team` prop
+- Displays:
+  - Epic (sticky column)
+  - Owner and Tech Owner
+  - Team Effort (input field)
+  - Allocated (calculated, read-only)
+  - Balance (calculated, read-only, color-coded)
+  - Team Sprint columns (all sprints for selected team)
+- Visual separator between Project Summary and Sprint Timeline
+- Team-specific color coding:
+  - Effort/Allocated/Balance: Light colors (100)
+  - Sprint columns: Stronger colors (200)
 
 #### Header Component
 - Displays application title

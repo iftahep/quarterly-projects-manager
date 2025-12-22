@@ -4,6 +4,18 @@ A comprehensive React application built with Vite and Tailwind CSS for managing 
 
 ## Features
 
+### Tabbed Interface
+- **Overview Tab**: Complete dashboard view with all tables (Projects, Balance Summary, Sprint Allocation, Resource Planning)
+- **Team Tabs**: Focused views for each team (Backend, Android, iOS)
+  - **Unified Team Table**: Shows Epic, Owner, Tech Owner, Team Effort, Allocated, Balance, and Team Sprints
+  - **Visual Separation**: Clear divider between Project Summary (left) and Sprint Timeline (right)
+  - **Team-Specific Footer**: Totals and balance calculations for the selected team only
+  - **Color Coding**: 
+    - Effort/Allocated/Balance columns: Light team colors (100)
+    - Sprint columns: Stronger team colors (200) for better visibility
+- **Data Synchronization**: All tabs share the same data - changes in one tab reflect immediately in all others
+- **Default View**: Overview tab is selected by default
+
 ### Projects Table
 - **Epic Management**: Track project epics with expandable Epic column (300px width)
 - **Ownership**: Assign Owner and Tech Owner from predefined dropdown lists
@@ -121,7 +133,9 @@ npm run preview
 quarterly-projects-manager/
 ├── src/
 │   ├── components/
-│   │   ├── Dashboard.jsx      # Main dashboard with all tables
+│   │   ├── Dashboard.jsx      # Main dashboard with tabbed interface
+│   │   ├── OverviewTab.jsx   # Overview tab component (complete dashboard view)
+│   │   ├── TeamTab.jsx       # Team-specific tab component (Backend/Android/iOS)
 │   │   ├── Header.jsx         # Header with save button
 │   │   ├── QuarterSelector.jsx # Quarter selection and management
 │   │   └── GanttModal.jsx     # Gantt chart timeline visualization
@@ -150,12 +164,29 @@ quarterly-projects-manager/
 ## Key Components
 
 ### Dashboard Component
-Main component containing:
+Main component with tabbed interface:
+- **Tab Navigation**: Switch between Overview and team-specific views
+- **Overview Tab**: Complete dashboard with all tables
+- **Team Tabs**: Focused views for Backend, Android, and iOS teams
+- All tabs share the same data state for real-time synchronization
+
+### OverviewTab Component
+Complete dashboard view containing:
 - Projects Table
 - Balance Summary Table
 - Sprint Allocation Table
 - Resource Planning Section (3 Sprint Capacity Tables)
 - Gantt Chart Modal trigger button
+
+### TeamTab Component
+Unified team view showing:
+- Epic (sticky column)
+- Owner and Tech Owner
+- Team Effort (input field)
+- Allocated (calculated, read-only)
+- Balance (calculated, read-only, color-coded)
+- Team Sprint columns (all sprints for the selected team)
+- Visual separator between summary and timeline sections
 
 ### Header Component
 - Application title
@@ -192,14 +223,20 @@ All data is stored in SQLite database via the backend API, including:
 
 ## Recent Updates
 
-- ✅ **Gantt Chart View**: New timeline visualization modal showing project allocations across sprints
+- ✅ **Tabbed Interface**: New navigation system with Overview and Team-specific tabs (Backend, Android, iOS)
+- ✅ **Team Tabs**: Unified team views with Epic, Owner, Tech Owner, Effort, Allocated, Balance, and Team Sprints
+- ✅ **Visual Color Coding**: 
+  - Effort/Allocated/Balance columns use light team colors (100)
+  - Sprint columns use stronger team colors (200) for better visibility
+- ✅ **Visual Separation**: Clear divider between Project Summary and Sprint Timeline sections
+- ✅ **Gantt Chart View**: Timeline visualization modal showing project allocations across sprints
 - ✅ **Sticky Footer Rows**: Summary rows in Projects and Sprint Allocation tables stay visible while scrolling
-- ✅ **Smart Sprint Headers**: Headers show capacity and balance with color-coded feedback
+- ✅ **Smart Sprint Headers**: Headers show balance with color-coded feedback
 - ✅ **Column Visibility Toggle**: Show/hide sprint columns by team to manage wide tables
 - ✅ **Visual Team Grouping**: Super Headers row groups sprints by team (Backend, Android, iOS)
 - ✅ **Clean Summary Footer**: Redesigned Sprint Allocation footer with labels in first column
 - ✅ **Subtle Delete Buttons**: Icon-only delete buttons in Resource Planning tables, appear on hover
-- ✅ **Sticky Footer Status Bar**: Global status bar showing total balances for all teams
+- ✅ **Sticky Footer Status Bar**: Global status bar showing total balances for all teams (Overview tab only)
 - ✅ Project reordering with up/down arrow buttons
 - ✅ Clean table UI with improved spacing and minimal borders
 - ✅ Dynamic column widths (Epic: 300px, others optimized)

@@ -163,6 +163,12 @@ function Dashboard({ saveFunctionRef, quarterId }) {
     ))
   }
 
+  const handleDeleteRow = (projectId) => {
+    if (window.confirm('Are you sure you want to delete this project?')) {
+      setProjects(projects.filter(project => project.id !== projectId))
+    }
+  }
+
   const handleMoveProject = (projectId, direction) => {
     const currentIndex = projects.findIndex(p => p.id === projectId)
     if (currentIndex === -1) return
@@ -441,6 +447,7 @@ function Dashboard({ saveFunctionRef, quarterId }) {
           handleAddRow={handleAddRow}
           handleCellChange={handleCellChange}
           handleMoveProject={handleMoveProject}
+          handleDeleteRow={handleDeleteRow}
           formatNumber={formatNumber}
           calculateTotal={calculateTotal}
           calculateProjectAllocated={calculateProjectAllocated}
@@ -464,6 +471,7 @@ function Dashboard({ saveFunctionRef, quarterId }) {
           handleAddRow={handleAddRow}
           handleCellChange={handleCellChange}
           handleMoveProject={handleMoveProject}
+          handleDeleteRow={handleDeleteRow}
           formatNumber={formatNumber}
           calculateTotal={calculateTotal}
           calculateProjectAllocated={calculateProjectAllocated}
@@ -482,6 +490,7 @@ function Dashboard({ saveFunctionRef, quarterId }) {
           handleAddRow={handleAddRow}
           handleCellChange={handleCellChange}
           handleMoveProject={handleMoveProject}
+          handleDeleteRow={handleDeleteRow}
           formatNumber={formatNumber}
           calculateTotal={calculateTotal}
           calculateProjectAllocated={calculateProjectAllocated}
@@ -500,6 +509,7 @@ function Dashboard({ saveFunctionRef, quarterId }) {
           handleAddRow={handleAddRow}
           handleCellChange={handleCellChange}
           handleMoveProject={handleMoveProject}
+          handleDeleteRow={handleDeleteRow}
           formatNumber={formatNumber}
           calculateTotal={calculateTotal}
           calculateProjectAllocated={calculateProjectAllocated}

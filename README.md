@@ -21,9 +21,13 @@ A comprehensive React application built with Vite and Tailwind CSS for managing 
 - **Ownership**: Assign Owner and Tech Owner from predefined dropdown lists
 - **Effort Estimation**: Input required hours for Backend, Android, and iOS teams
 - **Project Reordering**: 
-  - Move projects up/down using arrow buttons in the "Move" column
+  - Move projects up/down using arrow buttons in the Epic cell (left side, visible on hover)
   - First project cannot move up, last project cannot move down
   - Order is preserved when saving data
+- **Project Deletion**: 
+  - Delete projects using the trash icon button in the Epic cell (right side, visible on hover)
+  - Confirmation dialog prevents accidental deletions
+  - Delete button appears only when hovering over a row
 - **Project Balance Tracking**: 
   - Automatic calculation of allocated hours per project
   - Balance calculation (Required - Allocated) with color coding:
@@ -205,13 +209,14 @@ Unified team view showing:
 
 ## Usage
 
-1. **Add Projects**: Click "Add Row" in Projects Table to add new projects
-2. **Reorder Projects**: Use the up/down arrow buttons in the "Move" column to change project order
-3. **Set Requirements**: Enter required hours for Backend, Android, and iOS
-4. **Define Sprints**: Add sprints in Resource Planning section and set capacities
-5. **Allocate Hours**: Enter allocated hours in Sprint Allocation table
-6. **Monitor Balance**: Check Balance Summary and project-level balances
-7. **Save Data**: Click "Save Changes" to persist data to the backend API
+1. **Add Projects**: Click the circular "+" button below the table to add new projects
+2. **Reorder Projects**: Use the up/down arrow buttons in the Epic cell (visible on hover) to change project order
+3. **Delete Projects**: Click the trash icon button in the Epic cell (right side, visible on hover) to delete projects
+4. **Set Requirements**: Enter required hours for Backend, Android, and iOS
+5. **Define Sprints**: Add sprints in Resource Planning section and set capacities
+6. **Allocate Hours**: Enter allocated hours in Sprint Allocation table
+7. **Monitor Balance**: Check Balance Summary and project-level balances
+8. **Save Data**: Click "Save Changes" to persist data to the backend API
 
 ## Data Storage
 
@@ -236,8 +241,10 @@ All data is stored in SQLite database via the backend API, including:
 - ✅ **Visual Team Grouping**: Super Headers row groups sprints by team (Backend, Android, iOS)
 - ✅ **Clean Summary Footer**: Redesigned Sprint Allocation footer with labels in first column
 - ✅ **Subtle Delete Buttons**: Icon-only delete buttons in Resource Planning tables, appear on hover
+- ✅ **Project Delete Functionality**: Delete projects with confirmation dialog, trash icon in Epic cell (right side)
+- ✅ **Compact Add Row Button**: Circular "+" button below tables for adding new projects
 - ✅ **Sticky Footer Status Bar**: Global status bar showing total balances for all teams (Overview tab only)
-- ✅ Project reordering with up/down arrow buttons
+- ✅ Project reordering with up/down arrow buttons in Epic cell (visible on hover)
 - ✅ Clean table UI with improved spacing and minimal borders
 - ✅ Dynamic column widths (Epic: 300px, others optimized)
 - ✅ Visual separators between sprint groups

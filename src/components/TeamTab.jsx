@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 
 const OWNER_OPTIONS = ['Oren', 'Shchory', 'Bar', 'Ben', 'Ohad', 'Ronen', 'Jenny', 'Aharoni', 'Rick']
 const TECH_OWNER_OPTIONS = ['Vitaly', 'Stas', 'Semyon', 'Dzimtry', 'Kirill', 'Shalom', 'Aharoni', 'Jenny']
@@ -10,6 +10,7 @@ function TeamTab({
   handleAddRow,
   handleCellChange,
   handleMoveProject,
+  handleDeleteRow,
   formatNumber,
   calculateTotal,
   calculateProjectAllocated,
@@ -44,6 +45,7 @@ function TeamTab({
   }
 
   const config = teamConfig[team]
+  const [showOwners, setShowOwners] = useState(false)
 
   return (
     <div className="space-y-6 pb-20">
@@ -54,12 +56,17 @@ function TeamTab({
             Manage {config.label.toLowerCase()} projects and sprint allocations
           </p>
         </div>
-        <button
-          onClick={handleAddRow}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-sm"
-        >
-          + Add Row
-        </button>
+        <div className="flex items-center gap-3">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={showOwners}
+              onChange={(e) => setShowOwners(e.target.checked)}
+              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+            />
+            <span className="text-sm text-gray-700">Show Owners</span>
+          </label>
+        </div>
       </div>
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
@@ -67,25 +74,26 @@ function TeamTab({
           <table className="min-w-full">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-2 py-4 text-center text-xs font-medium text-gray-600 uppercase tracking-wider" style={{ minWidth: '60px', width: '60px' }}>
-                  Move
-                </th>
-                <th className="px-4 py-4 text-left text-xs font-medium text-gray-600 uppercase tracking-wider sticky left-0 bg-gray-50 z-20" style={{ minWidth: '300px', width: '300px' }}>
+                <th className="p-0 text-left text-[11px] font-medium text-gray-600 uppercase tracking-wider sticky left-0 bg-gray-50 z-20 border-[0.5px] border-gray-200" style={{ minWidth: '300px', width: '300px' }}>
                   Epic
                 </th>
-                <th className="px-2 py-4 text-left text-xs font-medium text-gray-600 uppercase tracking-wider" style={{ minWidth: '120px', width: '120px' }}>
-                  Owner
-                </th>
-                <th className="px-2 py-4 text-left text-xs font-medium text-gray-600 uppercase tracking-wider" style={{ minWidth: '120px', width: '120px' }}>
-                  Tech Owner
-                </th>
-                <th className={`px-2 py-4 text-center text-xs font-medium text-gray-600 uppercase tracking-wider ${config.bgColor}`} style={{ minWidth: '90px', width: '90px' }}>
+                {showOwners && (
+                  <th className="p-0 text-left text-[11px] font-medium text-gray-600 uppercase tracking-wider border-[0.5px] border-gray-200" style={{ minWidth: '120px', width: '120px' }}>
+                    Owner
+                  </th>
+                )}
+                {showOwners && (
+                  <th className="p-0 text-left text-[11px] font-medium text-gray-600 uppercase tracking-wider border-[0.5px] border-gray-200" style={{ minWidth: '120px', width: '120px' }}>
+                    Tech Owner
+                  </th>
+                )}
+                <th className={`p-0 text-center text-[11px] font-medium text-gray-600 uppercase tracking-wider ${config.bgColor} border-[0.5px] border-gray-200`} style={{ minWidth: '90px', width: '90px' }}>
                   {config.label} Effort
                 </th>
-                <th className={`px-2 py-4 text-center text-xs font-medium text-gray-600 uppercase tracking-wider ${config.bgColor}`} style={{ minWidth: '100px', width: '100px' }}>
+                <th className={`${config.bgColor} text-center text-xs font-medium text-gray-600 uppercase tracking-wider px-2 py-1`} style={{ minWidth: '100px', width: '100px' }}>
                   Allocated
                 </th>
-                <th className={`px-2 py-4 text-center text-xs font-medium text-gray-600 uppercase tracking-wider border-r-4 border-gray-300 ${config.bgColor}`} style={{ minWidth: '100px', width: '100px' }}>
+                <th className={`${config.bgColor} text-center text-xs font-medium text-gray-600 uppercase tracking-wider border-r-4 border-gray-300 px-2 py-1`} style={{ minWidth: '100px', width: '100px' }}>
                   Balance
                 </th>
                 {sprints.map((sprint, index) => {
@@ -95,14 +103,14 @@ function TeamTab({
                   return (
                     <th
                       key={`sprint_${sprint.id}`}
-                      className={`px-2 py-3 text-center ${isLast ? 'border-r-2 border-gray-300' : ''} ${isNegative ? 'bg-red-50' : 'bg-gray-50'} sticky top-0 z-20`}
+                      className={`p-0 text-center ${isLast ? 'border-r-2 border-gray-300' : ''} ${isNegative ? 'bg-red-50' : 'bg-gray-50'} sticky top-0 z-20 border-[0.5px] border-gray-200`}
                       style={{ minWidth: '80px', width: '80px' }}
                     >
-                      <div className="flex flex-col gap-1">
-                        <div className="text-xs font-medium text-gray-700 uppercase tracking-wider">
+                      <div className="flex flex-col gap-0">
+                        <div className="text-[11px] font-medium text-gray-700 uppercase tracking-wider">
                           {sprint.name || 'Sprint'}
                         </div>
-                        <div className={`text-xs font-semibold ${isNegative ? 'text-red-600' : 'text-green-600'}`}>
+                        <div className={`text-[11px] font-semibold ${isNegative ? 'text-red-600' : 'text-green-600'}`}>
                           Bal: {balance}
                         </div>
                       </div>
@@ -113,86 +121,90 @@ function TeamTab({
             </thead>
             <tbody className="bg-white">
               {projects.map((project, index) => (
-                <tr key={project.id} className={`${index % 2 === 1 ? 'bg-gray-50/50' : ''} hover:bg-blue-50 transition-colors border-b border-gray-100`}>
-                  {/* Move Buttons */}
-                  <td className="px-2 py-4 text-center" style={{ minWidth: '60px', width: '60px' }}>
-                    <div className="flex flex-col gap-1 items-center">
+                <tr key={project.id} className={`group ${index % 2 === 1 ? 'bg-gray-50/50' : ''} hover:bg-blue-50 transition-colors border-[0.5px] border-gray-200`}>
+                  {/* Epic - Sticky with Move Buttons */}
+                  <td className="p-0 relative sticky left-0 bg-white z-10 border-r-2 border-gray-300 border-[0.5px] border-gray-200" style={{ minWidth: '300px', width: '300px' }}>
+                    <div className="flex items-center">
+                      <div className="flex flex-col opacity-0 group-hover:opacity-100 transition-opacity absolute left-0 z-10">
+                        <button
+                          onClick={() => handleMoveProject(project.id, 'up')}
+                          disabled={index === 0}
+                          className={`p-0.5 ${index === 0 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:text-blue-600'}`}
+                          title="Move up"
+                        >
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={() => handleMoveProject(project.id, 'down')}
+                          disabled={index === projects.length - 1}
+                          className={`p-0.5 ${index === projects.length - 1 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:text-blue-600'}`}
+                          title="Move down"
+                        >
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </button>
+                      </div>
                       <button
-                        onClick={() => handleMoveProject(project.id, 'up')}
-                        disabled={index === 0}
-                        className={`p-1 rounded transition-colors ${
-                          index === 0
-                            ? 'text-gray-300 cursor-not-allowed'
-                            : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
-                        }`}
-                        title="Move up"
+                        onClick={() => handleDeleteRow(project.id)}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity absolute right-2 top-1/2 -translate-y-1/2 z-10 p-0.5 text-gray-400 hover:text-red-600"
+                        title="Delete row"
                       >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
                       </button>
-                      <button
-                        onClick={() => handleMoveProject(project.id, 'down')}
-                        disabled={index === projects.length - 1}
-                        className={`p-1 rounded transition-colors ${
-                          index === projects.length - 1
-                            ? 'text-gray-300 cursor-not-allowed'
-                            : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
-                        }`}
-                        title="Move down"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                        </svg>
-                      </button>
+                      <input
+                        type="text"
+                        value={project.epic}
+                        onChange={(e) => handleCellChange(project.id, 'epic', e.target.value)}
+                        className="w-full h-5 py-0 px-1 pr-8 text-[11px] leading-none bg-transparent border-0 hover:bg-gray-50 focus:bg-gray-100 focus:outline-none focus:ring-0"
+                        placeholder="Enter epic name"
+                        style={{ paddingLeft: '20px' }}
+                      />
                     </div>
                   </td>
                   
-                  {/* Epic - Sticky */}
-                  <td className="px-4 py-4 sticky left-0 bg-white z-10 border-r-2 border-gray-300" style={{ minWidth: '300px', width: '300px' }}>
-                    <input
-                      type="text"
-                      value={project.epic}
-                      onChange={(e) => handleCellChange(project.id, 'epic', e.target.value)}
-                      className="w-full px-2 py-1 text-sm bg-transparent border-0 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Enter epic name"
-                    />
-                  </td>
-                  
                   {/* Owner */}
-                  <td className="px-2 py-4" style={{ minWidth: '120px', width: '120px' }}>
-                    <select
-                      value={project.owner}
-                      onChange={(e) => handleCellChange(project.id, 'owner', e.target.value)}
-                      className="w-full px-2 py-1 text-sm bg-transparent border-0 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none cursor-pointer"
-                    >
-                      <option value="">Select Owner</option>
-                      {OWNER_OPTIONS.map((owner) => (
-                        <option key={owner} value={owner}>
-                          {owner}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
+                  {showOwners && (
+                    <td className="p-0 border-[0.5px] border-gray-200" style={{ minWidth: '120px', width: '120px' }}>
+                      <select
+                        value={project.owner}
+                        onChange={(e) => handleCellChange(project.id, 'owner', e.target.value)}
+                        className="w-full h-5 py-0 px-1 text-[11px] leading-none bg-transparent border-0 hover:bg-gray-50 focus:bg-gray-100 focus:outline-none focus:ring-0 appearance-none cursor-pointer"
+                      >
+                        <option value="">Select Owner</option>
+                        {OWNER_OPTIONS.map((owner) => (
+                          <option key={owner} value={owner}>
+                            {owner}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                  )}
                   
                   {/* Tech Owner */}
-                  <td className="px-2 py-4" style={{ minWidth: '120px', width: '120px' }}>
-                    <select
-                      value={project.techOwner}
-                      onChange={(e) => handleCellChange(project.id, 'techOwner', e.target.value)}
-                      className="w-full px-2 py-1 text-sm bg-transparent border-0 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none cursor-pointer"
-                    >
-                      <option value="">Select Tech Owner</option>
-                      {TECH_OWNER_OPTIONS.map((techOwner) => (
-                        <option key={techOwner} value={techOwner}>
-                          {techOwner}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
+                  {showOwners && (
+                    <td className="p-0 border-[0.5px] border-gray-200" style={{ minWidth: '120px', width: '120px' }}>
+                      <select
+                        value={project.techOwner}
+                        onChange={(e) => handleCellChange(project.id, 'techOwner', e.target.value)}
+                        className="w-full h-5 py-0 px-1 text-[11px] leading-none bg-transparent border-0 hover:bg-gray-50 focus:bg-gray-100 focus:outline-none focus:ring-0 appearance-none cursor-pointer"
+                      >
+                        <option value="">Select Tech Owner</option>
+                        {TECH_OWNER_OPTIONS.map((techOwner) => (
+                          <option key={techOwner} value={techOwner}>
+                            {techOwner}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                  )}
                   
                   {/* Team Effort */}
-                  <td className={`px-2 py-4 ${config.bgColor}`} style={{ minWidth: '90px', width: '90px' }}>
+                  <td className={`p-0 ${config.bgColor} border-[0.5px] border-gray-200`} style={{ minWidth: '90px', width: '90px' }}>
                     <input
                       type="number"
                       value={(() => {
@@ -201,7 +213,7 @@ function TeamTab({
                         return (val === '' || val === null || val === undefined || num === 0) ? '' : val
                       })()}
                       onChange={(e) => handleCellChange(project.id, team, e.target.value)}
-                      className="w-full px-2 py-1 text-sm bg-transparent border-0 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-center placeholder:text-gray-200"
+                      className="w-full h-5 py-0 px-1 text-[11px] leading-none bg-transparent border-0 hover:bg-gray-50 focus:bg-gray-100 focus:outline-none focus:ring-0 text-center placeholder:text-gray-200"
                       placeholder="0"
                       min="0"
                       step="0.5"
@@ -209,15 +221,13 @@ function TeamTab({
                   </td>
                   
                   {/* Allocated */}
-                  <td className={`px-2 py-4 ${config.bgColor} text-center`} style={{ minWidth: '100px', width: '100px' }}>
-                    <span className="text-sm font-medium text-gray-900">
-                      {calculateProjectAllocated(project, team) || 0}
-                    </span>
+                  <td className={`${config.bgColor} text-center text-xs text-gray-600 px-2 py-1`} style={{ minWidth: '100px', width: '100px' }}>
+                    {calculateProjectAllocated(project, team) || 0}
                   </td>
                   
                   {/* Balance */}
-                  <td className={`px-2 py-4 border-r-4 border-gray-300 ${config.bgColor} text-center`} style={{ minWidth: '100px', width: '100px' }}>
-                    <span className={`text-sm font-semibold ${
+                  <td className={`${config.bgColor} text-center text-xs font-bold border-r-4 border-gray-300 px-2 py-1`} style={{ minWidth: '100px', width: '100px' }}>
+                    <span className={`${
                       calculateProjectBalance(project, team) < 0 ? 'text-red-600' : 
                       calculateProjectBalance(project, team) > 0 ? 'text-yellow-600' : 
                       'text-green-600'
@@ -234,7 +244,7 @@ function TeamTab({
                     return (
                       <td 
                         key={`sprint_${sprint.id}`} 
-                        className={`px-2 py-4 ${isLast ? 'border-r-2 border-gray-300' : ''} ${hasValue ? config.bgColorSprint : ''}`} 
+                        className={`p-0 ${isLast ? 'border-r-2 border-gray-300' : ''} ${hasValue ? config.bgColorSprint : ''} border-[0.5px] border-gray-200`} 
                         style={{ minWidth: '80px', width: '80px' }}
                       >
                         <input
@@ -245,7 +255,7 @@ function TeamTab({
                             return (val === '' || val === null || val === undefined || num === 0) ? '' : val
                           })()}
                           onChange={(e) => handleCellChange(project.id, `${team}_${sprint.id}`, e.target.value)}
-                          className="w-full px-1 py-1 text-sm bg-transparent border-0 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-center placeholder:text-gray-200"
+                          className="w-full h-5 py-0 px-1 text-[11px] leading-none bg-transparent border-0 hover:bg-gray-50 focus:bg-gray-100 focus:outline-none focus:ring-0 text-center placeholder:text-gray-200"
                           placeholder="0"
                           min="0"
                           step="0.5"
@@ -258,29 +268,34 @@ function TeamTab({
             </tbody>
             <tfoot>
               {/* Summary Row */}
-              <tr className={`bg-white font-bold border-t-2 border-gray-300 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]`}>
-                <td className="px-2 py-4 sticky bottom-[80px] bg-white z-30" style={{ minWidth: '60px', width: '60px' }}></td>
-                <td className="px-4 py-4 sticky bottom-[80px] left-0 bg-white z-40 border-r-2 border-gray-300 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.1)]" style={{ minWidth: '300px', width: '300px' }}>
-                  <span className="text-sm text-gray-700">Totals</span>
+              <tr className={`bg-white font-bold border-t-[0.5px] border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]`}>
+                <td className="p-0 sticky bottom-0 left-0 bg-white z-40 border-r-2 border-gray-300 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.1)] border border-[0.5px] border-gray-200" style={{ minWidth: '300px', width: '300px' }}>
+                  <span className="text-[11px] text-gray-700 px-1">Totals</span>
                 </td>
-                <td className="px-2 py-4 sticky bottom-[80px] bg-white z-30" style={{ minWidth: '120px', width: '120px' }}></td>
-                <td className="px-2 py-4 sticky bottom-[80px] bg-white z-30" style={{ minWidth: '120px', width: '120px' }}></td>
+                {showOwners && (
+                  <td className="p-0 sticky bottom-0 bg-white z-30 border border-[0.5px] border-gray-200" style={{ minWidth: '120px', width: '120px' }}></td>
+                )}
+                {showOwners && (
+                  <td className="p-0 sticky bottom-0 bg-white z-30 border border-[0.5px] border-gray-200" style={{ minWidth: '120px', width: '120px' }}></td>
+                )}
                 
                 {/* Team Effort Total */}
-                <td className={`px-2 py-4 ${config.bgColor} text-center sticky bottom-[80px] z-30`} style={{ minWidth: '90px', width: '90px' }}>
-                  <span className="text-sm text-gray-900">{calculateTotal(team) || 0}</span>
+                <td className={`p-0 ${config.bgColor} text-center sticky bottom-0 z-30 border border-[0.5px] border-gray-200`} style={{ minWidth: '90px', width: '90px' }}>
+                  <span className="text-[11px] text-gray-900">{calculateTotal(team) || 0}</span>
                 </td>
                 
                 {/* Allocated Total */}
-                <td className={`px-2 py-4 ${config.bgColor} text-center sticky bottom-[80px] z-30`} style={{ minWidth: '100px', width: '100px' }}>
-                  <span className="text-sm text-gray-900">
-                    {projects.reduce((sum, project) => sum + calculateProjectAllocated(project, team), 0) || 0}
-                  </span>
+                <td className={`${config.bgColor} text-center text-xs text-gray-600 px-2 py-1 sticky bottom-0 z-30`} style={{ minWidth: '100px', width: '100px' }}>
+                  {projects.reduce((sum, project) => sum + calculateProjectAllocated(project, team), 0) || 0}
                 </td>
                 
                 {/* Balance Total */}
-                <td className={`px-2 py-4 border-r-4 border-gray-300 ${config.bgColor} text-center sticky bottom-[80px] z-30`} style={{ minWidth: '100px', width: '100px' }}>
-                  <span className="text-sm text-gray-900">
+                <td className={`${config.bgColor} text-center text-xs font-bold border-r-4 border-gray-300 px-2 py-1 sticky bottom-0 z-30`} style={{ minWidth: '100px', width: '100px' }}>
+                  <span className={`${
+                    projects.reduce((sum, project) => sum + calculateProjectBalance(project, team), 0) < 0 ? 'text-red-600' : 
+                    projects.reduce((sum, project) => sum + calculateProjectBalance(project, team), 0) > 0 ? 'text-yellow-600' : 
+                    'text-green-600'
+                  }`}>
                     {projects.reduce((sum, project) => sum + calculateProjectBalance(project, team), 0) || 0}
                   </span>
                 </td>
@@ -295,14 +310,14 @@ function TeamTab({
                   return (
                     <td 
                       key={`footer_${sprint.id}`} 
-                      className={`px-2 py-3 ${isLast ? 'border-r-2 border-gray-300' : ''} text-center ${hasValue ? config.bgColorSprint : 'bg-white'} sticky bottom-[80px] z-30`} 
+                      className={`p-0 ${isLast ? 'border-r-2 border-gray-300' : ''} text-center ${hasValue ? config.bgColorSprint : 'bg-white'} sticky bottom-0 z-30 border border-[0.5px] border-gray-200`} 
                       style={{ minWidth: '80px', width: '80px' }}
                     >
                       <div className="flex flex-col space-y-0">
-                        <div className="text-xs text-gray-500">{allocated}</div>
-                        <div className="text-xs text-gray-500">{capacity}</div>
-                        <div className="border-t border-gray-200 my-1"></div>
-                        <div className={`text-sm font-bold ${
+                        <div className="text-[11px] text-gray-500">{allocated}</div>
+                        <div className="text-[11px] text-gray-500">{capacity}</div>
+                        <div className="border-t border-gray-200 my-0"></div>
+                        <div className={`text-[11px] font-bold ${
                           balance < 0 ? 'text-red-600' : 
                           balance > 0 ? 'text-green-600' : 
                           'text-gray-900'
@@ -316,6 +331,17 @@ function TeamTab({
               </tr>
             </tfoot>
           </table>
+        </div>
+        <div className="flex justify-center mt-2">
+          <button
+            onClick={handleAddRow}
+            className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-sm hover:bg-blue-700 hover:shadow-md transition-all"
+            title="Add New Project"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+          </button>
         </div>
       </div>
     </div>

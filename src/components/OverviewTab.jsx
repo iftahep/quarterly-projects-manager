@@ -793,14 +793,18 @@ function OverviewTab({
                   </tr>
                 ))}
               </tbody>
-              <tfoot>
+              <tfoot className="sticky bottom-0 z-20">
                 {/* Summary Row with Footers */}
-                <tr className="bg-white font-bold border-t-[0.5px] border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
-                  <td className="p-0 border-r-2 border-gray-300 sticky bottom-[80px] left-0 bg-white z-40 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.1)] border-[0.5px] border-gray-200" style={{ minWidth: '250px', width: '250px' }}>
-                    <div className="flex flex-col items-end space-y-0">
-                      <span className="text-[11px] text-gray-500 px-1">Allocated</span>
-                      <span className="text-[11px] text-gray-500 px-1">Capacity</span>
-                      <span className="text-[11px] font-bold text-gray-900 px-1">Balance</span>
+                <tr className="bg-gray-100 font-bold border-t-4 border-double border-gray-300">
+                  <td 
+                    colSpan={1}
+                    className="p-0 border-r-2 border-gray-300 sticky bottom-0 left-0 bg-gray-100 z-40 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.1)] border-[0.5px] border-gray-200 text-right"
+                    style={{ minWidth: '250px', width: '250px' }}
+                  >
+                    <div className="flex flex-col items-end space-y-0 px-1 h-6 justify-center">
+                      <span className="text-[11px] text-gray-500">Allocated</span>
+                      <span className="text-[11px] text-gray-500">Capacity</span>
+                      <span className="text-[11px] font-bold text-gray-900">Balance</span>
                     </div>
                   </td>
                   
@@ -815,10 +819,10 @@ function OverviewTab({
                     return (
                       <td 
                         key={`backend_footer_${sprint.id}`} 
-                        className={`p-0 ${shouldShowBorder ? 'border-r-4 border-gray-400' : ''} text-center ${hasValue ? 'bg-green-200' : 'bg-white'} sticky bottom-[80px] z-30 border-[0.5px] border-gray-200`} 
+                        className={`p-0 ${shouldShowBorder ? 'border-r-4 border-gray-400' : ''} text-center bg-gray-100 sticky bottom-0 z-30 border-[0.5px] border-gray-200 h-6`}
                         style={{ minWidth: '80px', width: '80px' }}
                       >
-                        <div className="flex flex-col space-y-0">
+                        <div className="flex flex-col space-y-0 h-full justify-center">
                           <div className="text-[11px] text-gray-500">{allocated}</div>
                           <div className="text-[11px] text-gray-500">{capacity}</div>
                           <div className="border-t border-gray-200 my-0"></div>
@@ -845,10 +849,10 @@ function OverviewTab({
                     return (
                       <td 
                         key={`android_footer_${sprint.id}`} 
-                        className={`p-0 ${shouldShowBorder ? 'border-r-4 border-gray-400' : ''} text-center ${hasValue ? 'bg-blue-200' : 'bg-white'} sticky bottom-[80px] z-30 border-[0.5px] border-gray-200`} 
+                        className={`p-0 ${shouldShowBorder ? 'border-r-4 border-gray-400' : ''} text-center bg-gray-100 sticky bottom-0 z-30 border-[0.5px] border-gray-200 h-6`}
                         style={{ minWidth: '80px', width: '80px' }}
                       >
-                        <div className="flex flex-col space-y-0">
+                        <div className="flex flex-col space-y-0 h-full justify-center">
                           <div className="text-[11px] text-gray-500">{allocated}</div>
                           <div className="text-[11px] text-gray-500">{capacity}</div>
                           <div className="border-t border-gray-200 my-0"></div>
@@ -873,10 +877,10 @@ function OverviewTab({
                     return (
                       <td 
                         key={`ios_footer_${sprint.id}`} 
-                        className={`p-0 text-center ${hasValue ? 'bg-orange-200' : 'bg-white'} sticky bottom-[80px] z-30 border-[0.5px] border-gray-200`} 
+                        className={`p-0 text-center bg-gray-100 sticky bottom-0 z-30 border-[0.5px] border-gray-200 h-6`}
                         style={{ minWidth: '80px', width: '80px' }}
                       >
-                        <div className="flex flex-col space-y-0">
+                        <div className="flex flex-col space-y-0 h-full justify-center">
                           <div className="text-[11px] text-gray-500">{allocated}</div>
                           <div className="text-[11px] text-gray-500">{capacity}</div>
                           <div className="border-t border-gray-200 my-0"></div>

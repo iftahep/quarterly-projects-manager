@@ -52,11 +52,14 @@ A comprehensive React application built with Vite and Tailwind CSS for managing 
 - **Sticky Footer Row**: 
   - Summary row with Allocated, Capacity, and Balance for each sprint
   - Stays visible at bottom of table (above global status bar)
-  - Clean layout with labels in first column, numbers in data cells
+  - Clean layout with labels in first column (Epic), numbers aligned with sprint columns
+  - Footer cells use neutral gray background (`bg-gray-100`) to distinguish from sprint data cells
+  - Proper column alignment ensures summary values match sprint columns exactly
 - **Sprint Summary Footers**: 
   - Total Allocated per sprint
   - Sprint Capacity
   - Balance (Capacity - Allocated) with color coding
+  - Visual distinction: Footer uses gray background, different from colored sprint cells
 
 ### Balance Summary Table
 - **Require**: Sum of required hours from Projects Table

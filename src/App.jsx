@@ -46,29 +46,36 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header onSave={handleSave} />
-      <main className="container mx-auto px-4 py-8">
-        <div className="mb-6">
-          <QuarterSelector
-            currentQuarterId={currentQuarterId}
-            onQuarterChange={handleQuarterChange}
-          />
-        </div>
-        {currentQuarterId ? (
-          <Dashboard 
-            saveFunctionRef={saveFunctionRef} 
-            quarterId={currentQuarterId}
-          />
-        ) : (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
-            <p className="text-gray-600 mb-4">No active quarter selected.</p>
-            <p className="text-sm text-gray-500">
-              Create a new quarter to get started.
-            </p>
-          </div>
-        )}
-      </main>
+    <div className="min-h-screen bg-gray-50 flex">
+      {/* Left Sidebar */}
+      <aside className="w-64 bg-white border-r border-gray-200 flex-shrink-0 h-screen sticky top-0 overflow-y-auto">
+        <QuarterSelector
+          currentQuarterId={currentQuarterId}
+          onQuarterChange={handleQuarterChange}
+        />
+      </aside>
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-w-0">
+        <Header onSave={handleSave} />
+        <main className="flex-1 overflow-y-auto">
+          {currentQuarterId ? (
+            <Dashboard 
+              saveFunctionRef={saveFunctionRef} 
+              quarterId={currentQuarterId}
+            />
+          ) : (
+            <div className="container mx-auto px-4 py-8">
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
+                <p className="text-gray-600 mb-4">No active quarter selected.</p>
+                <p className="text-sm text-gray-500">
+                  Create a new quarter to get started.
+                </p>
+              </div>
+            </div>
+          )}
+        </main>
+      </div>
     </div>
   )
 }

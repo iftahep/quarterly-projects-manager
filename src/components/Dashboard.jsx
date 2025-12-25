@@ -407,7 +407,7 @@ function Dashboard({ saveFunctionRef, quarterId }) {
   const tabs = ['Overview', 'Backend', 'Android', 'iOS']
 
   return (
-    <div className="space-y-6 pb-20">
+    <div className="space-y-6 pb-20 px-4 py-4">
       {/* Tab Navigation */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
         <div className="border-b border-gray-200">
@@ -522,8 +522,8 @@ function Dashboard({ saveFunctionRef, quarterId }) {
 
       {/* Sticky Footer Status Bar - Only show in Overview tab */}
       {activeTab === 'Overview' && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-40">
-          <div className="container mx-auto px-4 py-3">
+        <div className="fixed bottom-0 left-64 right-0 bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-40">
+          <div className="px-4 py-3">
             <div className="flex items-center justify-center gap-8">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-gray-700">Backend:</span>

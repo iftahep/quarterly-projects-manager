@@ -97,73 +97,104 @@ function QuarterSelector({ currentQuarterId, onQuarterChange }) {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-        <p className="text-gray-600">Loading quarters...</p>
+      <div className="p-4">
+        <p className="text-gray-600 text-sm">Loading quarters...</p>
       </div>
     )
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-semibold text-gray-700">Quarters</h3>
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className="px-3 py-1.5 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-        >
-          + New Quarter
-        </button>
+    <div className="h-full flex flex-col">
+      {/* Sidebar Header */}
+      <div className="p-4 border-b border-gray-200">
+        <h3 className="text-lg font-semibold text-gray-800">Quarters</h3>
       </div>
 
-      {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-          {error}
-        </div>
-      )}
+      {/* Quarters List */}
+      <div className="flex-1 overflow-y-auto p-2">
 
-      <div className="space-y-2">
-        {quarters.length === 0 ? (
-          <p className="text-gray-500 text-sm">No quarters yet. Create one to get started!</p>
-        ) : (
-          quarters.map((quarter) => (
-            <div
-              key={quarter.id}
-              className={`flex items-center justify-between p-3 rounded-lg border ${
-                quarter.isActive
-                  ? 'bg-green-50 border-green-300'
-                  : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <span className="font-medium text-gray-900">{quarter.name}</span>
-                {quarter.isActive && (
-                  <span className="px-2 py-0.5 text-xs bg-green-600 text-white rounded">
-                    Active
-                  </span>
-                )}
-                <span className="text-xs text-gray-500">
-                  {new Date(quarter.createdAt).toLocaleDateString()}
-                </span>
-              </div>
-              <div className="flex gap-2">
-                {!quarter.isActive && (
-                  <button
-                    onClick={() => handleActivateQuarter(quarter.id)}
-                    className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-                  >
-                    Activate
-                  </button>
-                )}
-                <button
-                  onClick={() => setShowDeleteModal(quarter)}
-                  className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          ))
+        {error && (
+          <div className="mb-3 p-2 bg-red-50 border border-red-200 rounded text-red-700 text-xs">
+            {error}
+          </div>
         )}
+
+        <div className="space-y-1">
+          {quarters.length === 0 ? (
+            <p className="text-gray-500 text-xs p-2">No quarters yet. Create one to get started!</p>
+          ) : (
+            quarters.map((quarter) => (
+              <div
+                key={quarter.id}
+                className={`group flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-colors ${
+                  quarter.isActive
+                    ? 'bg-blue-50 border-l-4 border-blue-600'
+                    : 'hover:bg-gray-50'
+                }`}
+                onClick={() => !quarter.isActive && handleActivateQuarter(quarter.id)}
+              >
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className={`font-medium text-sm truncate ${
+                      quarter.isActive ? 'text-blue-900' : 'text-gray-900'
+                    }`}>
+                      {quarter.name}
+                    </span>
+                    {quarter.isActive && (
+                      <span className="px-1.5 py-0.5 text-[10px] bg-blue-600 text-white rounded flex-shrink-0">
+                        Active
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-[10px] text-gray-500 block mt-0.5">
+                    {new Date(quarter.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                  </span>
+                </div>
+                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  {!quarter.isActive && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleActivateQuarter(quarter.id)
+                      }}
+                      className="p-1.5 text-blue-600 hover:bg-blue-100 rounded transition-colors"
+                      title="Activate"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </button>
+                  )}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setShowDeleteModal(quarter)
+                    }}
+                    className="p-1.5 text-red-600 hover:bg-red-100 rounded transition-colors"
+                    title="Delete"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+        
+        {/* Add New Quarter Button - Small icon below last quarter */}
+        <div className="mt-2 pt-2 border-t border-gray-200">
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="w-full flex items-center justify-center p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+            title="Add New Quarter"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+          </button>
+        </div>
       </div>
 
       {/* Create Quarter Modal */}

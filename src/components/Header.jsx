@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-function Header({ onSave }) {
+function Header({ onSave, viewMode, onSetBaseline, hasBaseline }) {
   const [showToast, setShowToast] = useState(false)
 
   const handleSave = () => {
@@ -24,15 +24,30 @@ function Header({ onSave }) {
               Track and manage your quarterly projects
             </p>
           </div>
-          <button
-            onClick={handleSave}
-            className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium shadow-sm flex items-center gap-2"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-            Save Changes
-          </button>
+          {/* Set Baseline Button - Only in LIVE mode */}
+          {viewMode === 'LIVE' && (
+            <button
+              onClick={onSetBaseline}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-sm flex items-center gap-2"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+              </svg>
+              Set Baseline
+            </button>
+          )}
+          {/* Save Changes Button - Only in LIVE mode */}
+          {viewMode === 'LIVE' && (
+            <button
+              onClick={handleSave}
+              className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium shadow-sm flex items-center gap-2"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              Save Changes
+            </button>
+          )}
         </div>
       </div>
       

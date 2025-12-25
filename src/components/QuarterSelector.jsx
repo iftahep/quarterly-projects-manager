@@ -1,17 +1,25 @@
 import { useState, useEffect } from 'react'
 import { quarterAPI } from '../services/api'
 
-function QuarterSelector({ currentQuarterId, onQuarterChange }) {
+function QuarterSelector({ currentQuarterId, onQuarterChange, viewMode, onViewModeChange, quarterBaselines }) {
   const [quarters, setQuarters] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [newQuarterName, setNewQuarterName] = useState('')
   const [showDeleteModal, setShowDeleteModal] = useState(null) // quarter to delete
+  const [expandedQuarters, setExpandedQuarters] = useState(new Set()) // Track which quarters are expanded
 
   useEffect(() => {
     loadQuarters()
   }, [])
+
+  // Auto-expand current quarter
+  useEffect(() => {
+    if (currentQuarterId) {
+      setExpandedQuarters(prev => new Set([...prev, currentQuarterId]))
+    }
+  }, [currentQuarterId])
 
   const loadQuarters = async () => {
     try {
@@ -123,63 +131,134 @@ function QuarterSelector({ currentQuarterId, onQuarterChange }) {
           {quarters.length === 0 ? (
             <p className="text-gray-500 text-xs p-2">No quarters yet. Create one to get started!</p>
           ) : (
-            quarters.map((quarter) => (
-              <div
-                key={quarter.id}
-                className={`group flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-colors ${
-                  quarter.isActive
-                    ? 'bg-blue-50 border-l-4 border-blue-600'
-                    : 'hover:bg-gray-50'
-                }`}
-                onClick={() => !quarter.isActive && handleActivateQuarter(quarter.id)}
-              >
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className={`font-medium text-sm truncate ${
-                      quarter.isActive ? 'text-blue-900' : 'text-gray-900'
-                    }`}>
-                      {quarter.name}
-                    </span>
-                    {quarter.isActive && (
-                      <span className="px-1.5 py-0.5 text-[10px] bg-blue-600 text-white rounded flex-shrink-0">
-                        Active
-                      </span>
-                    )}
-                  </div>
-                  <span className="text-[10px] text-gray-500 block mt-0.5">
-                    {new Date(quarter.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                  </span>
-                </div>
-                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  {!quarter.isActive && (
+            quarters.map((quarter) => {
+              const isExpanded = expandedQuarters.has(quarter.id)
+              const hasBaseline = quarterBaselines && quarterBaselines[quarter.id]
+              const isCurrentQuarter = currentQuarterId === quarter.id
+              const isLiveSelected = isCurrentQuarter && viewMode === 'LIVE'
+              const isBaselineSelected = isCurrentQuarter && viewMode === 'BASELINE'
+
+              return (
+                <div key={quarter.id} className="border-b border-gray-100 last:border-b-0">
+                  {/* Parent Node: Quarter Name */}
+                  <div
+                    className={`group flex items-center gap-2 p-2 rounded-lg transition-colors ${
+                      quarter.isActive
+                        ? 'bg-blue-50 border-l-4 border-blue-600'
+                        : 'hover:bg-gray-50'
+                    }`}
+                  >
                     <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleActivateQuarter(quarter.id)
+                      onClick={() => {
+                        const newExpanded = new Set(expandedQuarters)
+                        if (isExpanded) {
+                          newExpanded.delete(quarter.id)
+                        } else {
+                          newExpanded.add(quarter.id)
+                        }
+                        setExpandedQuarters(newExpanded)
                       }}
-                      className="p-1.5 text-blue-600 hover:bg-blue-100 rounded transition-colors"
-                      title="Activate"
+                      className="p-0.5 text-gray-400 hover:text-gray-600 transition-colors"
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      <svg
+                        className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-90' : ''}`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                       </svg>
                     </button>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className={`font-medium text-sm truncate ${
+                          quarter.isActive ? 'text-blue-900' : 'text-gray-900'
+                        }`}>
+                          {quarter.name}
+                        </span>
+                        {quarter.isActive && (
+                          <span className="px-1.5 py-0.5 text-[10px] bg-blue-600 text-white rounded flex-shrink-0">
+                            Active
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-[10px] text-gray-500 block mt-0.5">
+                        {new Date(quarter.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                      </span>
+                    </div>
+                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      {!quarter.isActive && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleActivateQuarter(quarter.id)
+                          }}
+                          className="p-1.5 text-blue-600 hover:bg-blue-100 rounded transition-colors"
+                          title="Activate"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                        </button>
+                      )}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setShowDeleteModal(quarter)
+                        }}
+                        className="p-1.5 text-red-600 hover:bg-red-100 rounded transition-colors"
+                        title="Delete"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Child Nodes: Live / Actual and Baseline Plan */}
+                  {isExpanded && (
+                    <div className="pl-6 pb-1 space-y-0.5">
+                      {/* Live / Actual - Always visible */}
+                      <button
+                        onClick={() => {
+                          onQuarterChange(quarter.id)
+                          onViewModeChange('LIVE')
+                        }}
+                        className={`w-full text-left px-2 py-1.5 rounded text-xs transition-colors ${
+                          isLiveSelected
+                            ? 'bg-blue-100 text-blue-900 font-medium'
+                            : 'text-gray-700 hover:bg-gray-50'
+                        }`}
+                      >
+                        Live / Actual
+                      </button>
+
+                      {/* Baseline Plan - Only if baseline exists */}
+                      <button
+                        onClick={() => {
+                          if (hasBaseline) {
+                            onQuarterChange(quarter.id)
+                            onViewModeChange('BASELINE')
+                          }
+                        }}
+                        disabled={!hasBaseline}
+                        className={`w-full text-left px-2 py-1.5 rounded text-xs transition-colors ${
+                          !hasBaseline
+                            ? 'text-gray-400 cursor-not-allowed'
+                            : isBaselineSelected
+                            ? 'bg-blue-100 text-blue-900 font-medium'
+                            : 'text-gray-700 hover:bg-gray-50'
+                        }`}
+                        title={!hasBaseline ? 'No baseline available. Set baseline first.' : 'View Baseline Plan'}
+                      >
+                        Baseline Plan
+                      </button>
+                    </div>
                   )}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setShowDeleteModal(quarter)
-                    }}
-                    className="p-1.5 text-red-600 hover:bg-red-100 rounded transition-colors"
-                    title="Delete"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                  </button>
                 </div>
-              </div>
-            ))
+              )
+            })
           )}
         </div>
         

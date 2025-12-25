@@ -75,6 +75,14 @@ export const quarterAPI = {
     return apiCall(`/quarters/${id}`, {
       method: 'DELETE'
     })
+  },
+
+  // Set baseline for quarter (optional data for edit mode)
+  setBaseline: async (id, data) => {
+    return apiCall(`/quarters/${id}/baseline`, {
+      method: 'POST',
+      body: data ? JSON.stringify({ data }) : undefined
+    })
   }
 }
 

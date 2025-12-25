@@ -17,7 +17,10 @@ function TeamTab({
   calculateProjectBalance,
   calculateSprintAllocated,
   calculateSprintBalance,
-  getSprintCapacity
+  getSprintCapacity,
+  isTableLocked = false,
+  baselineData = null,
+  showDiff = false
 }) {
   // Team-specific styling
   const teamConfig = {
@@ -46,6 +49,34 @@ function TeamTab({
 
   const config = teamConfig[team]
   const [showOwners, setShowOwners] = useState(false)
+
+  // Helper functions for diff visualization
+  const getBaselineValue = (projectId, field) => {
+    if (!baselineData || !baselineData.projects) return null
+    const baselineProject = baselineData.projects.find(p => p.id === projectId)
+    return baselineProject ? baselineProject[field] : null
+  }
+
+  const isProjectNew = (projectId) => {
+    if (!baselineData || !baselineData.projects) return true
+    return !baselineData.projects.find(p => p.id === projectId)
+  }
+
+  const hasValueChanged = (currentValue, baselineValue) => {
+    if (baselineValue === null || baselineValue === undefined) return false
+    const current = parseFloat(currentValue) || 0
+    const baseline = parseFloat(baselineValue) || 0
+    return current !== baseline
+  }
+
+  // Wrapper function to prevent changes when locked
+  const safeHandleCellChange = (id, field, value) => {
+    if (isTableLocked) {
+      console.warn('Cell change blocked - table is locked')
+      return
+    }
+    handleCellChange(id, field, value)
+  }
 
   return (
     <div className="space-y-6 pb-20">
@@ -128,8 +159,8 @@ function TeamTab({
                       <div className="flex flex-col opacity-0 group-hover:opacity-100 transition-opacity absolute left-0 z-10">
                         <button
                           onClick={() => handleMoveProject(project.id, 'up')}
-                          disabled={index === 0}
-                          className={`p-0.5 ${index === 0 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:text-blue-600'}`}
+                          disabled={index === 0 || isTableLocked}
+                          className={`p-0.5 ${index === 0 || isTableLocked ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:text-blue-600'}`}
                           title="Move up"
                         >
                           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -138,8 +169,8 @@ function TeamTab({
                         </button>
                         <button
                           onClick={() => handleMoveProject(project.id, 'down')}
-                          disabled={index === projects.length - 1}
-                          className={`p-0.5 ${index === projects.length - 1 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:text-blue-600'}`}
+                          disabled={index === projects.length - 1 || isTableLocked}
+                          className={`p-0.5 ${index === projects.length - 1 || isTableLocked ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:text-blue-600'}`}
                           title="Move down"
                         >
                           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -149,21 +180,30 @@ function TeamTab({
                       </div>
                       <button
                         onClick={() => handleDeleteRow(project.id)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity absolute right-2 top-1/2 -translate-y-1/2 z-10 p-0.5 text-gray-400 hover:text-red-600"
+                        disabled={isTableLocked}
+                        className={`opacity-0 group-hover:opacity-100 transition-opacity absolute right-2 top-1/2 -translate-y-1/2 z-10 p-0.5 ${isTableLocked ? 'text-gray-300 cursor-not-allowed' : 'text-gray-400 hover:text-red-600'}`}
                         title="Delete row"
                       >
                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
                       </button>
-                      <input
-                        type="text"
-                        value={project.epic}
-                        onChange={(e) => handleCellChange(project.id, 'epic', e.target.value)}
-                        className="w-full h-5 py-0 px-1 pr-8 text-[11px] leading-none bg-transparent border-0 hover:bg-gray-50 focus:bg-gray-100 focus:outline-none focus:ring-0"
-                        placeholder="Enter epic name"
-                        style={{ paddingLeft: '20px' }}
-                      />
+                      <div className="flex items-center gap-1">
+                        <input
+                          type="text"
+                          value={project.epic}
+                          onChange={(e) => safeHandleCellChange(project.id, 'epic', e.target.value)}
+                          disabled={isTableLocked}
+                          className={`w-full h-5 py-0 px-1 pr-8 text-[11px] leading-none bg-transparent border-0 ${isTableLocked ? 'cursor-not-allowed opacity-60' : 'hover:bg-gray-50 focus:bg-gray-100'} focus:outline-none focus:ring-0`}
+                          placeholder="Enter epic name"
+                          style={{ paddingLeft: '20px' }}
+                        />
+                        {showDiff && isProjectNew(project.id) && (
+                          <span className="px-1.5 py-0.5 text-[9px] font-semibold bg-blue-500 text-white rounded">
+                            NEW
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </td>
                   
@@ -172,8 +212,9 @@ function TeamTab({
                     <td className="p-0 border-[0.5px] border-gray-200" style={{ minWidth: '120px', width: '120px' }}>
                       <select
                         value={project.owner}
-                        onChange={(e) => handleCellChange(project.id, 'owner', e.target.value)}
-                        className="w-full h-5 py-0 px-1 text-[11px] leading-none bg-transparent border-0 hover:bg-gray-50 focus:bg-gray-100 focus:outline-none focus:ring-0 appearance-none cursor-pointer"
+                        onChange={(e) => safeHandleCellChange(project.id, 'owner', e.target.value)}
+                        disabled={isTableLocked}
+                        className={`w-full h-5 py-0 px-1 text-[11px] leading-none bg-transparent border-0 ${isTableLocked ? 'cursor-not-allowed opacity-60' : 'hover:bg-gray-50 focus:bg-gray-100'} focus:outline-none focus:ring-0 appearance-none cursor-pointer`}
                       >
                         <option value="">Select Owner</option>
                         {OWNER_OPTIONS.map((owner) => (
@@ -190,8 +231,9 @@ function TeamTab({
                     <td className="p-0 border-[0.5px] border-gray-200" style={{ minWidth: '120px', width: '120px' }}>
                       <select
                         value={project.techOwner}
-                        onChange={(e) => handleCellChange(project.id, 'techOwner', e.target.value)}
-                        className="w-full h-5 py-0 px-1 text-[11px] leading-none bg-transparent border-0 hover:bg-gray-50 focus:bg-gray-100 focus:outline-none focus:ring-0 appearance-none cursor-pointer"
+                        onChange={(e) => safeHandleCellChange(project.id, 'techOwner', e.target.value)}
+                        disabled={isTableLocked}
+                        className={`w-full h-5 py-0 px-1 text-[11px] leading-none bg-transparent border-0 ${isTableLocked ? 'cursor-not-allowed opacity-60' : 'hover:bg-gray-50 focus:bg-gray-100'} focus:outline-none focus:ring-0 appearance-none cursor-pointer`}
                       >
                         <option value="">Select Tech Owner</option>
                         {TECH_OWNER_OPTIONS.map((techOwner) => (
@@ -204,20 +246,28 @@ function TeamTab({
                   )}
                   
                   {/* Team Effort */}
-                  <td className={`p-0 ${config.bgColor} border-[0.5px] border-gray-200`} style={{ minWidth: '90px', width: '90px' }}>
-                    <input
-                      type="number"
-                      value={(() => {
-                        const val = formatNumber(project[team])
-                        const num = parseFloat(val)
-                        return (val === '' || val === null || val === undefined || num === 0) ? '' : val
-                      })()}
-                      onChange={(e) => handleCellChange(project.id, team, e.target.value)}
-                      className="w-full h-5 py-0 px-1 text-[11px] leading-none bg-transparent border-0 hover:bg-gray-50 focus:bg-gray-100 focus:outline-none focus:ring-0 text-center placeholder:text-gray-200"
-                      placeholder="0"
-                      min="0"
-                      step="0.5"
-                    />
+                  <td className={`p-0 ${config.bgColor} ${showDiff && hasValueChanged(project[team], getBaselineValue(project.id, team)) ? 'bg-yellow-50' : ''} border-[0.5px] border-gray-200`} style={{ minWidth: '90px', width: '90px' }}>
+                    <div className="flex flex-col">
+                      <input
+                        type="number"
+                        value={(() => {
+                          const val = formatNumber(project[team])
+                          const num = parseFloat(val)
+                          return (val === '' || val === null || val === undefined || num === 0) ? '' : val
+                        })()}
+                        onChange={(e) => safeHandleCellChange(project.id, team, e.target.value)}
+                        disabled={isTableLocked}
+                        className={`w-full h-5 py-0 px-1 text-[11px] leading-none bg-transparent border-0 ${isTableLocked ? 'cursor-not-allowed opacity-60' : 'hover:bg-gray-50 focus:bg-gray-100'} focus:outline-none focus:ring-0 text-center placeholder:text-gray-200`}
+                        placeholder="0"
+                        min="0"
+                        step="0.5"
+                      />
+                      {showDiff && hasValueChanged(project[team], getBaselineValue(project.id, team)) && (
+                        <span className="text-[9px] text-gray-500 line-through px-1">
+                          Was: {formatNumber(getBaselineValue(project.id, team)) || '0'}
+                        </span>
+                      )}
+                    </div>
                   </td>
                   
                   {/* Allocated */}
@@ -244,22 +294,30 @@ function TeamTab({
                     return (
                       <td 
                         key={`sprint_${sprint.id}`} 
-                        className={`p-0 ${isLast ? 'border-r-2 border-gray-300' : ''} ${hasValue ? config.bgColorSprint : ''} border-[0.5px] border-gray-200`} 
+                        className={`p-0 ${isLast ? 'border-r-2 border-gray-300' : ''} ${hasValue ? config.bgColorSprint : ''} ${showDiff && hasValueChanged(project[`${team}_${sprint.id}`], getBaselineValue(project.id, `${team}_${sprint.id}`)) ? 'bg-yellow-50' : ''} border-[0.5px] border-gray-200`} 
                         style={{ minWidth: '80px', width: '80px' }}
                       >
-                        <input
-                          type="number"
-                          value={(() => {
-                            const val = formatNumber(project[`${team}_${sprint.id}`])
-                            const num = parseFloat(val)
-                            return (val === '' || val === null || val === undefined || num === 0) ? '' : val
-                          })()}
-                          onChange={(e) => handleCellChange(project.id, `${team}_${sprint.id}`, e.target.value)}
-                          className="w-full h-5 py-0 px-1 text-[11px] leading-none bg-transparent border-0 hover:bg-gray-50 focus:bg-gray-100 focus:outline-none focus:ring-0 text-center placeholder:text-gray-200"
-                          placeholder="0"
-                          min="0"
-                          step="0.5"
-                        />
+                        <div className="flex flex-col">
+                          <input
+                            type="number"
+                            value={(() => {
+                              const val = formatNumber(project[`${team}_${sprint.id}`])
+                              const num = parseFloat(val)
+                              return (val === '' || val === null || val === undefined || num === 0) ? '' : val
+                            })()}
+                            onChange={(e) => safeHandleCellChange(project.id, `${team}_${sprint.id}`, e.target.value)}
+                            disabled={isTableLocked}
+                            className={`w-full h-5 py-0 px-1 text-[11px] leading-none bg-transparent border-0 ${isTableLocked ? 'cursor-not-allowed opacity-60' : 'hover:bg-gray-50 focus:bg-gray-100'} focus:outline-none focus:ring-0 text-center placeholder:text-gray-200`}
+                            placeholder="0"
+                            min="0"
+                            step="0.5"
+                          />
+                          {showDiff && hasValueChanged(project[`${team}_${sprint.id}`], getBaselineValue(project.id, `${team}_${sprint.id}`)) && (
+                            <span className="text-[9px] text-gray-500 line-through px-1">
+                              Was: {formatNumber(getBaselineValue(project.id, `${team}_${sprint.id}`)) || '0'}
+                            </span>
+                          )}
+                        </div>
                       </td>
                     )
                   })}
@@ -335,7 +393,8 @@ function TeamTab({
         <div className="flex justify-center mt-2">
           <button
             onClick={handleAddRow}
-            className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-sm hover:bg-blue-700 hover:shadow-md transition-all"
+            disabled={isTableLocked}
+            className={`w-8 h-8 rounded-full flex items-center justify-center shadow-sm transition-all ${isTableLocked ? 'bg-gray-400 text-gray-200 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-md'}`}
             title="Add New Project"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

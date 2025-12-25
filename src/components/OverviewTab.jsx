@@ -1,14 +1,15 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import GanttModal from './GanttModal'
 
 // SprintTable component - defined outside to prevent re-creation on each render
-const SprintTable = React.memo(({ title, sprints, type, onSprintChange, onAddSprint, onDeleteSprint, formatNumber }) => (
+const SprintTable = React.memo(({ title, sprints, type, onSprintChange, onAddSprint, onDeleteSprint, formatNumber, isTableLocked = false }) => (
   <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
     <div className="px-2 py-1 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
       <h3 className="text-sm font-semibold text-gray-700">{title}</h3>
       <button
         onClick={() => onAddSprint(type)}
-        className="px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+        disabled={isTableLocked}
+        className={`px-2 py-1 text-xs rounded transition-colors ${isTableLocked ? 'bg-gray-400 text-gray-200 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
       >
         + Add
       </button>
@@ -36,7 +37,8 @@ const SprintTable = React.memo(({ title, sprints, type, onSprintChange, onAddSpr
                   type="text"
                   value={sprint.name || ''}
                   onChange={(e) => onSprintChange(type, sprint.id, 'name', e.target.value)}
-                  className="w-full h-6 py-0 px-1 text-xs leading-none border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  disabled={isTableLocked}
+                  className={`w-full h-6 py-0 px-1 text-xs leading-none border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${isTableLocked ? 'cursor-not-allowed opacity-60 bg-gray-100' : ''}`}
                   placeholder="Sprint name"
                 />
               </td>
@@ -45,7 +47,8 @@ const SprintTable = React.memo(({ title, sprints, type, onSprintChange, onAddSpr
                   type="number"
                   value={formatNumber(sprint.capacity)}
                   onChange={(e) => onSprintChange(type, sprint.id, 'capacity', e.target.value)}
-                  className="w-full h-6 py-0 px-1 text-xs leading-none border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center"
+                  disabled={isTableLocked}
+                  className={`w-full h-6 py-0 px-1 text-xs leading-none border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center ${isTableLocked ? 'cursor-not-allowed opacity-60 bg-gray-100' : ''}`}
                   placeholder="0"
                   min="0"
                   step="0.5"
@@ -54,7 +57,8 @@ const SprintTable = React.memo(({ title, sprints, type, onSprintChange, onAddSpr
               <td className="px-2 py-1 text-center">
                 <button
                   onClick={() => onDeleteSprint(type, sprint.id)}
-                  className="p-1.5 text-gray-400 hover:text-red-600 transition-colors opacity-0 group-hover:opacity-100"
+                  disabled={isTableLocked}
+                  className={`p-1.5 transition-colors opacity-0 group-hover:opacity-100 ${isTableLocked ? 'text-gray-300 cursor-not-allowed' : 'text-gray-400 hover:text-red-600'}`}
                   title="Delete sprint"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -99,9 +103,77 @@ function OverviewTab({
   handleAddSprint,
   handleDeleteSprint,
   showGanttModal,
-  setShowGanttModal
+  setShowGanttModal,
+  isTableLocked = false,
+  baselineData = null,
+  showDiff = false
 }) {
   const [showOwners, setShowOwners] = useState(false)
+
+  // Helper functions for diff visualization
+  const getBaselineValue = (projectId, field) => {
+    if (!baselineData || !baselineData.projects) {
+      return null
+    }
+    const baselineProject = baselineData.projects.find(p => p.id === projectId)
+    const value = baselineProject ? baselineProject[field] : null
+    if (showDiff && value !== null) {
+      console.log(`getBaselineValue - projectId: ${projectId}, field: ${field}, value: ${value}`)
+    }
+    return value
+  }
+
+  const isProjectNew = (projectId) => {
+    if (!baselineData || !baselineData.projects) return true
+    return !baselineData.projects.find(p => p.id === projectId)
+  }
+
+  const hasValueChanged = (currentValue, baselineValue) => {
+    if (baselineValue === null || baselineValue === undefined) {
+      if (showDiff) {
+        console.log('hasValueChanged - no baseline value:', { currentValue, baselineValue })
+      }
+      return false
+    }
+    const current = parseFloat(currentValue) || 0
+    const baseline = parseFloat(baselineValue) || 0
+    const changed = current !== baseline
+    if (showDiff && changed) {
+      console.log('hasValueChanged - VALUE CHANGED:', { current, baseline, changed })
+    }
+    return changed
+  }
+
+  // Debug: Log when showDiff or baselineData changes
+  useEffect(() => {
+    console.log('=== OverviewTab Debug ===')
+    console.log('showDiff:', showDiff)
+    console.log('baselineData exists:', !!baselineData)
+    console.log('baselineData projects count:', baselineData?.projects?.length || 0)
+    console.log('current projects count:', projects?.length || 0)
+    
+    if (showDiff && baselineData && baselineData.projects) {
+      console.log('=== Comparing Projects ===')
+      projects.forEach((project, index) => {
+        const baselineProject = baselineData.projects.find(p => p.id === project.id)
+        if (baselineProject) {
+          const backendChanged = (parseFloat(project.backend) || 0) !== (parseFloat(baselineProject.backend) || 0)
+          console.log(`Project ${index} (${project.epic}): id=${project.id}, backend=${project.backend}, baseline=${baselineProject.backend}, changed=${backendChanged}`)
+        } else {
+          console.log(`Project ${index} (${project.epic}): id=${project.id}, NOT FOUND IN BASELINE (NEW PROJECT)`)
+        }
+      })
+    }
+  }, [showDiff, baselineData, projects])
+
+  // Wrapper function to prevent changes when locked
+  const safeHandleCellChange = (id, field, value) => {
+    if (isTableLocked) {
+      console.warn('Cell change blocked - table is locked')
+      return
+    }
+    handleCellChange(id, field, value)
+  }
 
   return (
     <div className="space-y-6 pb-20">
@@ -195,8 +267,8 @@ function OverviewTab({
                       <div className="flex flex-col opacity-0 group-hover:opacity-100 transition-opacity absolute left-0 z-10">
                         <button
                           onClick={() => handleMoveProject(project.id, 'up')}
-                          disabled={index === 0}
-                          className={`p-0.5 ${index === 0 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:text-blue-600'}`}
+                          disabled={index === 0 || isTableLocked}
+                          className={`p-0.5 ${index === 0 || isTableLocked ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:text-blue-600'}`}
                           title="Move up"
                         >
                           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -205,8 +277,8 @@ function OverviewTab({
                         </button>
                         <button
                           onClick={() => handleMoveProject(project.id, 'down')}
-                          disabled={index === projects.length - 1}
-                          className={`p-0.5 ${index === projects.length - 1 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:text-blue-600'}`}
+                          disabled={index === projects.length - 1 || isTableLocked}
+                          className={`p-0.5 ${index === projects.length - 1 || isTableLocked ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:text-blue-600'}`}
                           title="Move down"
                         >
                           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -216,7 +288,8 @@ function OverviewTab({
                       </div>
                       <button
                         onClick={() => handleDeleteRow(project.id)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity absolute right-2 top-1/2 -translate-y-1/2 z-10 p-0.5 text-gray-400 hover:text-red-600"
+                        disabled={isTableLocked}
+                        className={`opacity-0 group-hover:opacity-100 transition-opacity absolute right-2 top-1/2 -translate-y-1/2 z-10 p-0.5 ${isTableLocked ? 'text-gray-300 cursor-not-allowed' : 'text-gray-400 hover:text-red-600'}`}
                         title="Delete row"
                       >
                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -226,8 +299,10 @@ function OverviewTab({
                       <input
                         type="text"
                         value={project.epic}
-                        onChange={(e) => handleCellChange(project.id, 'epic', e.target.value)}
-                        className="w-full h-5 py-0 px-1 pr-8 text-[11px] leading-none bg-transparent border-0 hover:bg-gray-50 focus:bg-gray-100 focus:outline-none focus:ring-0"
+                        onChange={(e) => safeHandleCellChange(project.id, 'epic', e.target.value)}
+                        disabled={isTableLocked}
+                        readOnly={isTableLocked}
+                        className={`w-full h-5 py-0 px-1 pr-8 text-[11px] leading-none bg-transparent border-0 ${isTableLocked ? 'cursor-not-allowed opacity-60' : 'hover:bg-gray-50 focus:bg-gray-100'} focus:outline-none focus:ring-0`}
                         placeholder="Enter epic name"
                         style={{ paddingLeft: '20px' }}
                       />
@@ -239,8 +314,9 @@ function OverviewTab({
                     <td className="p-0 border border-[0.5px] border-gray-200" style={{ minWidth: '120px', width: '120px' }}>
                       <select
                         value={project.owner}
-                        onChange={(e) => handleCellChange(project.id, 'owner', e.target.value)}
-                        className="w-full h-5 py-0 px-1 text-[11px] leading-none bg-transparent border-0 hover:bg-gray-50 focus:bg-gray-100 focus:outline-none focus:ring-0 appearance-none cursor-pointer"
+                        onChange={(e) => safeHandleCellChange(project.id, 'owner', e.target.value)}
+                        disabled={isTableLocked}
+                        className={`w-full h-5 py-0 px-1 text-[11px] leading-none bg-transparent border-0 ${isTableLocked ? 'cursor-not-allowed opacity-60' : 'hover:bg-gray-50 focus:bg-gray-100'} focus:outline-none focus:ring-0 appearance-none cursor-pointer`}
                       >
                         <option value="">Select Owner</option>
                         {OWNER_OPTIONS.map((owner) => (
@@ -257,8 +333,9 @@ function OverviewTab({
                     <td className="p-0 border border-[0.5px] border-gray-200" style={{ minWidth: '120px', width: '120px' }}>
                       <select
                         value={project.techOwner}
-                        onChange={(e) => handleCellChange(project.id, 'techOwner', e.target.value)}
-                        className="w-full h-5 py-0 px-1 text-[11px] leading-none bg-transparent border-0 hover:bg-gray-50 focus:bg-gray-100 focus:outline-none focus:ring-0 appearance-none cursor-pointer"
+                        onChange={(e) => safeHandleCellChange(project.id, 'techOwner', e.target.value)}
+                        disabled={isTableLocked}
+                        className={`w-full h-5 py-0 px-1 text-[11px] leading-none bg-transparent border-0 ${isTableLocked ? 'cursor-not-allowed opacity-60' : 'hover:bg-gray-50 focus:bg-gray-100'} focus:outline-none focus:ring-0 appearance-none cursor-pointer`}
                       >
                         <option value="">Select Tech Owner</option>
                         {TECH_OWNER_OPTIONS.map((techOwner) => (
@@ -271,20 +348,28 @@ function OverviewTab({
                   )}
                   
                   {/* Backend Team Columns */}
-                  <td className="p-0 bg-green-100 border border-[0.5px] border-gray-200" style={{ minWidth: '90px', width: '90px' }}>
-                    <input
-                      type="number"
-                      value={(() => {
-                        const val = formatNumber(project.backend)
-                        const num = parseFloat(val)
-                        return (val === '' || val === null || val === undefined || num === 0) ? '' : val
-                      })()}
-                      onChange={(e) => handleCellChange(project.id, 'backend', e.target.value)}
-                      className="w-full h-5 py-0 px-1 text-[11px] leading-none bg-transparent border-0 hover:bg-gray-50 focus:bg-gray-100 focus:outline-none focus:ring-0 text-center placeholder:text-gray-200"
-                      placeholder="0"
-                      min="0"
-                      step="0.5"
-                    />
+                  <td className={`p-0 border border-[0.5px] border-gray-200 ${showDiff && hasValueChanged(project.backend, getBaselineValue(project.id, 'backend')) ? 'bg-yellow-50' : 'bg-green-100'}`} style={{ minWidth: '90px', width: '90px' }}>
+                    <div className="flex flex-col">
+                      <input
+                        type="number"
+                        value={(() => {
+                          const val = formatNumber(project.backend)
+                          const num = parseFloat(val)
+                          return (val === '' || val === null || val === undefined || num === 0) ? '' : val
+                        })()}
+                        onChange={(e) => safeHandleCellChange(project.id, 'backend', e.target.value)}
+                        disabled={isTableLocked}
+                        className={`w-full h-5 py-0 px-1 text-[11px] leading-none bg-transparent border-0 ${isTableLocked ? 'cursor-not-allowed opacity-60' : 'hover:bg-gray-50 focus:bg-gray-100'} focus:outline-none focus:ring-0 text-center placeholder:text-gray-200`}
+                        placeholder="0"
+                        min="0"
+                        step="0.5"
+                      />
+                      {showDiff && hasValueChanged(project.backend, getBaselineValue(project.id, 'backend')) && (
+                        <span className="text-[9px] text-gray-500 line-through px-1">
+                          Was: {formatNumber(getBaselineValue(project.id, 'backend')) || '0'}
+                        </span>
+                      )}
+                    </div>
                   </td>
                   
                   <td className="bg-green-100 text-center text-xs text-gray-600 px-2 py-1" style={{ minWidth: '100px', width: '100px' }}>
@@ -302,20 +387,28 @@ function OverviewTab({
                   </td>
                   
                   {/* Android Team Columns */}
-                  <td className="p-0 bg-blue-100 border border-[0.5px] border-gray-200" style={{ minWidth: '90px', width: '90px' }}>
-                    <input
-                      type="number"
-                      value={(() => {
-                        const val = formatNumber(project.android)
-                        const num = parseFloat(val)
-                        return (val === '' || val === null || val === undefined || num === 0) ? '' : val
-                      })()}
-                      onChange={(e) => handleCellChange(project.id, 'android', e.target.value)}
-                      className="w-full h-5 py-0 px-1 text-[11px] leading-none bg-transparent border-0 hover:bg-gray-50 focus:bg-gray-100 focus:outline-none focus:ring-0 text-center placeholder:text-gray-200"
-                      placeholder="0"
-                      min="0"
-                      step="0.5"
-                    />
+                  <td className={`p-0 border border-[0.5px] border-gray-200 ${showDiff && hasValueChanged(project.android, getBaselineValue(project.id, 'android')) ? 'bg-yellow-50' : 'bg-blue-100'}`} style={{ minWidth: '90px', width: '90px' }}>
+                    <div className="flex flex-col">
+                      <input
+                        type="number"
+                        value={(() => {
+                          const val = formatNumber(project.android)
+                          const num = parseFloat(val)
+                          return (val === '' || val === null || val === undefined || num === 0) ? '' : val
+                        })()}
+                        onChange={(e) => safeHandleCellChange(project.id, 'android', e.target.value)}
+                        disabled={isTableLocked}
+                        className={`w-full h-5 py-0 px-1 text-[11px] leading-none bg-transparent border-0 ${isTableLocked ? 'cursor-not-allowed opacity-60' : 'hover:bg-gray-50 focus:bg-gray-100'} focus:outline-none focus:ring-0 text-center placeholder:text-gray-200`}
+                        placeholder="0"
+                        min="0"
+                        step="0.5"
+                      />
+                      {showDiff && hasValueChanged(project.android, getBaselineValue(project.id, 'android')) && (
+                        <span className="text-[9px] text-gray-500 line-through px-1">
+                          Was: {formatNumber(getBaselineValue(project.id, 'android')) || '0'}
+                        </span>
+                      )}
+                    </div>
                   </td>
                   
                   <td className="bg-blue-100 text-center text-xs text-gray-600 px-2 py-1" style={{ minWidth: '100px', width: '100px' }}>
@@ -333,20 +426,28 @@ function OverviewTab({
                   </td>
                   
                   {/* iOS Team Columns */}
-                  <td className="p-0 bg-orange-100 border border-[0.5px] border-gray-200" style={{ minWidth: '90px', width: '90px' }}>
-                    <input
-                      type="number"
-                      value={(() => {
-                        const val = formatNumber(project.ios)
-                        const num = parseFloat(val)
-                        return (val === '' || val === null || val === undefined || num === 0) ? '' : val
-                      })()}
-                      onChange={(e) => handleCellChange(project.id, 'ios', e.target.value)}
-                      className="w-full h-5 py-0 px-1 text-[11px] leading-none bg-transparent border-0 hover:bg-gray-50 focus:bg-gray-100 focus:outline-none focus:ring-0 text-center placeholder:text-gray-200"
-                      placeholder="0"
-                      min="0"
-                      step="0.5"
-                    />
+                  <td className={`p-0 border border-[0.5px] border-gray-200 ${showDiff && hasValueChanged(project.ios, getBaselineValue(project.id, 'ios')) ? 'bg-yellow-50' : 'bg-orange-100'}`} style={{ minWidth: '90px', width: '90px' }}>
+                    <div className="flex flex-col">
+                      <input
+                        type="number"
+                        value={(() => {
+                          const val = formatNumber(project.ios)
+                          const num = parseFloat(val)
+                          return (val === '' || val === null || val === undefined || num === 0) ? '' : val
+                        })()}
+                        onChange={(e) => safeHandleCellChange(project.id, 'ios', e.target.value)}
+                        disabled={isTableLocked}
+                        className={`w-full h-5 py-0 px-1 text-[11px] leading-none bg-transparent border-0 ${isTableLocked ? 'cursor-not-allowed opacity-60' : 'hover:bg-gray-50 focus:bg-gray-100'} focus:outline-none focus:ring-0 text-center placeholder:text-gray-200`}
+                        placeholder="0"
+                        min="0"
+                        step="0.5"
+                      />
+                      {showDiff && hasValueChanged(project.ios, getBaselineValue(project.id, 'ios')) && (
+                        <span className="text-[9px] text-gray-500 line-through px-1">
+                          Was: {formatNumber(getBaselineValue(project.id, 'ios')) || '0'}
+                        </span>
+                      )}
+                    </div>
                   </td>
                   
                   <td className="bg-orange-100 text-center text-xs text-gray-600 px-2 py-1" style={{ minWidth: '100px', width: '100px' }}>
@@ -435,7 +536,8 @@ function OverviewTab({
         <div className="flex justify-center mt-2">
           <button
             onClick={handleAddRow}
-            className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-sm hover:bg-blue-700 hover:shadow-md transition-all"
+            disabled={isTableLocked}
+            className={`w-8 h-8 rounded-full flex items-center justify-center shadow-sm transition-all ${isTableLocked ? 'bg-gray-400 text-gray-200 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-md'}`}
             title="Add New Project"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -715,22 +817,30 @@ function OverviewTab({
                       return (
                         <td 
                           key={`backend_${sprint.id}`} 
-                          className={`p-0 ${shouldShowBorder ? 'border-r-4 border-gray-400' : ''} ${hasValue ? 'bg-green-200' : ''} border-[0.5px] border-gray-200`} 
+                          className={`p-0 ${shouldShowBorder ? 'border-r-4 border-gray-400' : ''} ${hasValue ? 'bg-green-200' : ''} ${showDiff && hasValueChanged(project[`backend_${sprint.id}`], getBaselineValue(project.id, `backend_${sprint.id}`)) ? 'bg-yellow-50' : ''} border-[0.5px] border-gray-200`} 
                           style={{ minWidth: '80px', width: '80px' }}
                         >
-                          <input
-                            type="number"
-                            value={(() => {
-                              const val = formatNumber(project[`backend_${sprint.id}`])
-                              const num = parseFloat(val)
-                              return (val === '' || val === null || val === undefined || num === 0) ? '' : val
-                            })()}
-                            onChange={(e) => handleCellChange(project.id, `backend_${sprint.id}`, e.target.value)}
-                            className="w-full h-5 py-0 px-1 text-[11px] leading-none bg-transparent border-0 hover:bg-gray-50 focus:bg-gray-100 focus:outline-none focus:ring-0 text-center placeholder:text-gray-200"
-                            placeholder="0"
-                            min="0"
-                            step="0.5"
-                          />
+                          <div className="flex flex-col">
+                            <input
+                              type="number"
+                              value={(() => {
+                                const val = formatNumber(project[`backend_${sprint.id}`])
+                                const num = parseFloat(val)
+                                return (val === '' || val === null || val === undefined || num === 0) ? '' : val
+                              })()}
+                              onChange={(e) => safeHandleCellChange(project.id, `backend_${sprint.id}`, e.target.value)}
+                              disabled={isTableLocked}
+                              className={`w-full h-5 py-0 px-1 text-[11px] leading-none bg-transparent border-0 ${isTableLocked ? 'cursor-not-allowed opacity-60' : 'hover:bg-gray-50 focus:bg-gray-100'} focus:outline-none focus:ring-0 text-center placeholder:text-gray-200`}
+                              placeholder="0"
+                              min="0"
+                              step="0.5"
+                            />
+                            {showDiff && hasValueChanged(project[`backend_${sprint.id}`], getBaselineValue(project.id, `backend_${sprint.id}`)) && (
+                              <span className="text-[9px] text-gray-500 line-through px-1">
+                                Was: {formatNumber(getBaselineValue(project.id, `backend_${sprint.id}`)) || '0'}
+                              </span>
+                            )}
+                          </div>
                         </td>
                       )
                     })}
@@ -744,22 +854,30 @@ function OverviewTab({
                       return (
                         <td 
                           key={`android_${sprint.id}`} 
-                          className={`p-0 ${shouldShowBorder ? 'border-r-4 border-gray-400' : ''} ${hasValue ? 'bg-blue-200' : ''} border-[0.5px] border-gray-200`} 
+                          className={`p-0 ${shouldShowBorder ? 'border-r-4 border-gray-400' : ''} ${showDiff && hasValueChanged(project[`android_${sprint.id}`], getBaselineValue(project.id, `android_${sprint.id}`)) ? 'bg-yellow-50' : (hasValue ? 'bg-blue-200' : '')} border-[0.5px] border-gray-200`} 
                           style={{ minWidth: '80px', width: '80px' }}
                         >
-                          <input
-                            type="number"
-                            value={(() => {
-                              const val = formatNumber(project[`android_${sprint.id}`])
-                              const num = parseFloat(val)
-                              return (val === '' || val === null || val === undefined || num === 0) ? '' : val
-                            })()}
-                            onChange={(e) => handleCellChange(project.id, `android_${sprint.id}`, e.target.value)}
-                            className="w-full h-5 py-0 px-1 text-[11px] leading-none bg-transparent border-0 hover:bg-gray-50 focus:bg-gray-100 focus:outline-none focus:ring-0 text-center placeholder:text-gray-200"
-                            placeholder="0"
-                            min="0"
-                            step="0.5"
-                          />
+                          <div className="flex flex-col">
+                            <input
+                              type="number"
+                              value={(() => {
+                                const val = formatNumber(project[`android_${sprint.id}`])
+                                const num = parseFloat(val)
+                                return (val === '' || val === null || val === undefined || num === 0) ? '' : val
+                              })()}
+                              onChange={(e) => safeHandleCellChange(project.id, `android_${sprint.id}`, e.target.value)}
+                              disabled={isTableLocked}
+                              className={`w-full h-5 py-0 px-1 text-[11px] leading-none bg-transparent border-0 ${isTableLocked ? 'cursor-not-allowed opacity-60' : 'hover:bg-gray-50 focus:bg-gray-100'} focus:outline-none focus:ring-0 text-center placeholder:text-gray-200`}
+                              placeholder="0"
+                              min="0"
+                              step="0.5"
+                            />
+                            {showDiff && hasValueChanged(project[`android_${sprint.id}`], getBaselineValue(project.id, `android_${sprint.id}`)) && (
+                              <span className="text-[9px] text-gray-500 line-through px-1">
+                                Was: {formatNumber(getBaselineValue(project.id, `android_${sprint.id}`)) || '0'}
+                              </span>
+                            )}
+                          </div>
                         </td>
                       )
                     })}
@@ -771,22 +889,30 @@ function OverviewTab({
                       return (
                         <td 
                           key={`ios_${sprint.id}`} 
-                          className={`p-0 ${hasValue ? 'bg-orange-200' : ''} border-[0.5px] border-gray-200`} 
+                          className={`p-0 ${showDiff && hasValueChanged(project[`ios_${sprint.id}`], getBaselineValue(project.id, `ios_${sprint.id}`)) ? 'bg-yellow-50' : (hasValue ? 'bg-orange-200' : '')} border-[0.5px] border-gray-200`} 
                           style={{ minWidth: '80px', width: '80px' }}
                         >
-                          <input
-                            type="number"
-                            value={(() => {
-                              const val = formatNumber(project[`ios_${sprint.id}`])
-                              const num = parseFloat(val)
-                              return (val === '' || val === null || val === undefined || num === 0) ? '' : val
-                            })()}
-                            onChange={(e) => handleCellChange(project.id, `ios_${sprint.id}`, e.target.value)}
-                            className="w-full h-5 py-0 px-1 text-[11px] leading-none bg-transparent border-0 hover:bg-gray-50 focus:bg-gray-100 focus:outline-none focus:ring-0 text-center placeholder:text-gray-200"
-                            placeholder="0"
-                            min="0"
-                            step="0.5"
-                          />
+                          <div className="flex flex-col">
+                            <input
+                              type="number"
+                              value={(() => {
+                                const val = formatNumber(project[`ios_${sprint.id}`])
+                                const num = parseFloat(val)
+                                return (val === '' || val === null || val === undefined || num === 0) ? '' : val
+                              })()}
+                              onChange={(e) => safeHandleCellChange(project.id, `ios_${sprint.id}`, e.target.value)}
+                              disabled={isTableLocked}
+                              className={`w-full h-5 py-0 px-1 text-[11px] leading-none bg-transparent border-0 ${isTableLocked ? 'cursor-not-allowed opacity-60' : 'hover:bg-gray-50 focus:bg-gray-100'} focus:outline-none focus:ring-0 text-center placeholder:text-gray-200`}
+                              placeholder="0"
+                              min="0"
+                              step="0.5"
+                            />
+                            {showDiff && hasValueChanged(project[`ios_${sprint.id}`], getBaselineValue(project.id, `ios_${sprint.id}`)) && (
+                              <span className="text-[9px] text-gray-500 line-through px-1">
+                                Was: {formatNumber(getBaselineValue(project.id, `ios_${sprint.id}`)) || '0'}
+                              </span>
+                            )}
+                          </div>
                         </td>
                       )
                     })}
@@ -921,6 +1047,7 @@ function OverviewTab({
             onAddSprint={handleAddSprint}
             onDeleteSprint={handleDeleteSprint}
             formatNumber={formatNumber}
+            isTableLocked={isTableLocked}
           />
           <SprintTable
             title="Android Sprints"
@@ -930,6 +1057,7 @@ function OverviewTab({
             onAddSprint={handleAddSprint}
             onDeleteSprint={handleDeleteSprint}
             formatNumber={formatNumber}
+            isTableLocked={isTableLocked}
           />
           <SprintTable
             title="iOS Sprints"
@@ -939,6 +1067,7 @@ function OverviewTab({
             onAddSprint={handleAddSprint}
             onDeleteSprint={handleDeleteSprint}
             formatNumber={formatNumber}
+            isTableLocked={isTableLocked}
           />
         </div>
       </div>

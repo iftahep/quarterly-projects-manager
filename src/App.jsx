@@ -3,8 +3,10 @@ import Header from './components/Header'
 import Dashboard from './components/Dashboard'
 import QuarterSelector from './components/QuarterSelector'
 import { quarterAPI } from './services/api'
+import { useTheme } from './contexts/ThemeContext'
 
 function App() {
+  const { theme } = useTheme()
   const saveFunctionRef = useRef(null)
   const [currentQuarterId, setCurrentQuarterId] = useState(null)
   const [viewMode, setViewMode] = useState('LIVE') // 'LIVE' or 'BASELINE'
@@ -72,18 +74,28 @@ function App() {
   }, [loading])
 
 
+  // Theme-based class names - Modern SaaS Light Mode
+  const bgMain = theme === 'dark' ? 'bg-slate-900' : 'bg-slate-50'
+  const bgSidebar = theme === 'dark' ? 'bg-slate-800' : 'bg-white'
+  const borderSidebar = theme === 'dark' ? 'border-slate-700' : 'border-r-slate-200'
+  const textLoading = theme === 'dark' ? 'text-slate-400' : 'text-slate-600'
+  const bgCard = theme === 'dark' ? 'bg-slate-800' : 'bg-white'
+  const borderCard = theme === 'dark' ? 'border-slate-700' : 'border-slate-200'
+  const textCard = theme === 'dark' ? 'text-slate-400' : 'text-slate-600'
+  const textCardSecondary = theme === 'dark' ? 'text-slate-500' : 'text-slate-500'
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-gray-600">Loading...</p>
+      <div className={`min-h-screen ${bgMain} flex items-center justify-center`}>
+        <p className={textLoading}>Loading...</p>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className={`min-h-screen ${bgMain} flex`}>
       {/* Left Sidebar */}
-      <aside className="w-64 bg-white border-r border-gray-200 flex-shrink-0 h-screen sticky top-0 overflow-y-auto">
+      <aside className={`w-64 ${bgSidebar} border-r ${borderSidebar} flex-shrink-0 h-screen sticky top-0 overflow-y-auto`}>
         <QuarterSelector
           currentQuarterId={currentQuarterId}
           onQuarterChange={handleQuarterChange}
@@ -101,7 +113,7 @@ function App() {
           onSetBaseline={handleSetBaseline}
           hasBaseline={quarterBaselines[currentQuarterId] || false}
         />
-        <main className="flex-1 overflow-y-auto">
+        <main className={`flex-1 overflow-y-auto ${bgMain}`}>
           {currentQuarterId ? (
             <Dashboard 
               saveFunctionRef={saveFunctionRef} 
@@ -111,9 +123,9 @@ function App() {
             />
           ) : (
             <div className="container mx-auto px-4 py-8">
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
-                <p className="text-gray-600 mb-4">No active quarter selected.</p>
-                <p className="text-sm text-gray-500">
+              <div className={`${bgCard} rounded-lg shadow-sm border ${borderCard} p-8 text-center`}>
+                <p className={`${textCard} mb-4`}>No active quarter selected.</p>
+                <p className={`text-sm ${textCardSecondary}`}>
                   Create a new quarter to get started.
                 </p>
               </div>

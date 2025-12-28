@@ -4,80 +4,104 @@ import { quarterAPI } from '../services/api'
 import GanttModal from './GanttModal'
 import OverviewTab from './OverviewTab'
 import TeamTab from './TeamTab'
+import { useTheme } from '../contexts/ThemeContext'
 
 const OWNER_OPTIONS = ['Oren', 'Shchory', 'Bar', 'Ben', 'Ohad', 'Ronen', 'Jenny', 'Aharoni', 'Rick']
 const TECH_OWNER_OPTIONS = ['Vitaly', 'Stas', 'Semyon', 'Dzimtry', 'Kirill', 'Shalom', 'Aharoni', 'Jenny']
 
 // SprintTable component - defined outside to prevent re-creation on each render
-const SprintTable = React.memo(({ title, sprints, type, onSprintChange, onAddSprint, onDeleteSprint, formatNumber }) => (
-  <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-    <div className="px-4 py-3 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
-      <h3 className="text-sm font-semibold text-gray-700">{title}</h3>
-      <button
-        onClick={() => onAddSprint(type)}
-        className="px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-      >
-        + Add
-      </button>
-    </div>
-    <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
-          <tr>
-            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Sprint Name
-            </th>
-            <th className="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Capacity
-            </th>
-            <th className="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-16">
-              Action
-            </th>
-          </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
-          {sprints.map((sprint) => (
-            <tr key={sprint.id} className="group hover:bg-gray-50 transition-colors">
-              <td className="px-3 py-2">
-                <input
-                  type="text"
-                  value={sprint.name || ''}
-                  onChange={(e) => onSprintChange(type, sprint.id, 'name', e.target.value)}
-                  className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Sprint name"
-                />
-              </td>
-              <td className="px-3 py-2">
-                <input
-                  type="number"
-                  value={formatNumber(sprint.capacity)}
-                  onChange={(e) => onSprintChange(type, sprint.id, 'capacity', e.target.value)}
-                  className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center"
-                  placeholder="0"
-                  min="0"
-                  step="0.5"
-                />
-              </td>
-              <td className="px-3 py-2 text-center">
-                <button
-                  onClick={() => onDeleteSprint(type, sprint.id)}
-                  className="p-1.5 text-gray-400 hover:text-red-600 transition-colors opacity-0 group-hover:opacity-100"
-                  title="Delete sprint"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
-                </button>
-              </td>
+// Note: This component receives theme as prop
+const SprintTable = React.memo(({ title, sprints, type, onSprintChange, onAddSprint, onDeleteSprint, formatNumber, theme = 'dark' }) => {
+  const bgCard = theme === 'dark' ? 'bg-slate-800' : 'bg-white'
+  const borderCard = theme === 'dark' ? 'border-slate-700' : 'border-slate-200'
+  const bgHeader = theme === 'dark' ? 'bg-slate-700' : 'bg-slate-50'
+  const textTitle = theme === 'dark' ? 'text-slate-200' : 'text-slate-900'
+  const divideColor = theme === 'dark' ? 'divide-slate-700' : 'divide-slate-200'
+  const bgTable = theme === 'dark' ? 'bg-slate-800' : 'bg-white'
+  const textHeader = theme === 'dark' ? 'text-slate-400' : 'text-slate-600'
+  const hoverRow = theme === 'dark' ? 'hover:bg-slate-700/50' : 'hover:bg-slate-50'
+  const bgInput = theme === 'dark' ? 'bg-slate-700' : 'bg-transparent'
+  const borderInput = theme === 'dark' ? 'border-slate-600' : 'border-0'
+  const textInput = theme === 'dark' ? 'text-slate-100' : 'text-slate-900'
+  const textIcon = theme === 'dark' ? 'text-slate-500' : 'text-slate-400'
+  
+  return (
+    <div className={`${bgCard} rounded-lg shadow-sm border ${borderCard} overflow-hidden`}>
+      <div className={`px-4 py-3 ${bgHeader} border-b ${borderCard} flex justify-between items-center`}>
+        <h3 className={`text-sm font-semibold ${textTitle}`}>{title}</h3>
+          <button
+            onClick={() => onAddSprint(type)}
+            className={`px-2 py-1 text-xs text-white rounded transition-colors ${
+              theme === 'dark' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-indigo-600 hover:bg-indigo-700'
+            }`}
+          >
+            + Add
+          </button>
+      </div>
+      <div className="overflow-x-auto">
+        <table className={`min-w-full divide-y ${divideColor}`}>
+          <thead className={bgTable}>
+            <tr>
+              <th className={`px-3 py-2 text-left text-xs font-medium ${textHeader} uppercase tracking-wider`}>
+                Sprint Name
+              </th>
+              <th className={`px-3 py-2 text-center text-xs font-medium ${textHeader} uppercase tracking-wider`}>
+                Capacity
+              </th>
+              <th className={`px-3 py-2 text-center text-xs font-medium ${textHeader} uppercase tracking-wider w-16`}>
+                Action
+              </th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className={`${bgTable} divide-y ${divideColor}`}>
+            {sprints.map((sprint) => (
+              <tr key={sprint.id} className={`group ${hoverRow} transition-colors`}>
+                <td className="px-3 py-2">
+                  <input
+                    type="text"
+                    value={sprint.name || ''}
+                    onChange={(e) => onSprintChange(type, sprint.id, 'name', e.target.value)}
+                    className={`w-full px-2 py-1 text-sm ${bgInput} ${borderInput} ${textInput} rounded focus:outline-none focus:ring-2 ${
+                      theme === 'dark' ? 'border focus:ring-blue-500 focus:border-blue-500' : 'focus:ring-indigo-500'
+                    }`}
+                    placeholder="Sprint name"
+                  />
+                </td>
+                <td className="px-3 py-2">
+                  <input
+                    type="number"
+                    value={formatNumber(sprint.capacity)}
+                    onChange={(e) => onSprintChange(type, sprint.id, 'capacity', e.target.value)}
+                    className={`w-full px-2 py-1 text-sm ${bgInput} ${borderInput} ${textInput} rounded focus:outline-none focus:ring-2 text-center ${
+                      theme === 'dark' ? 'border focus:ring-blue-500 focus:border-blue-500' : 'focus:ring-indigo-500'
+                    }`}
+                    placeholder="0"
+                    min="0"
+                    step="0.5"
+                  />
+                </td>
+                <td className="px-3 py-2 text-center">
+                  <button
+                    onClick={() => onDeleteSprint(type, sprint.id)}
+                    className={`p-1.5 ${textIcon} hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100`}
+                    title="Delete sprint"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
-  </div>
-))
+  )
+})
 
 function Dashboard({ saveFunctionRef, quarterId, viewMode, onBaselineUpdated }) {
+  const { theme } = useTheme()
   // Initialize sprint capacity tables state
   const [backendSprints, setBackendSprints] = useState([
     { id: 1, name: 'Sprint 1', capacity: '' },
@@ -761,7 +785,7 @@ function Dashboard({ saveFunctionRef, quarterId, viewMode, onBaselineUpdated }) 
     <div className="space-y-6 pb-20 px-4 py-4">
       {/* Baseline View Banner */}
       {viewMode === 'BASELINE' && (
-        <div className="bg-blue-600 text-white py-3 px-4 rounded-lg shadow-md">
+        <div className={`${theme === 'dark' ? 'bg-blue-900/50' : 'bg-indigo-50'} ${theme === 'dark' ? 'text-blue-200' : 'text-indigo-900'} py-3 px-4 rounded-lg shadow-md`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -769,13 +793,13 @@ function Dashboard({ saveFunctionRef, quarterId, viewMode, onBaselineUpdated }) 
               </svg>
               <span className="font-semibold text-lg">Viewing Baseline Snapshot</span>
               {isEditingBaseline && (
-                <span className="ml-2 px-2 py-1 bg-orange-500 rounded text-sm">(Editing)</span>
+                <span className={`ml-2 px-2 py-1 ${theme === 'dark' ? 'bg-orange-900/50' : 'bg-orange-200'} ${theme === 'dark' ? 'text-orange-200' : 'text-orange-800'} rounded text-sm`}>(Editing)</span>
               )}
             </div>
             {!isEditingBaseline ? (
               <button
                 onClick={handleEditSnapshot}
-                className="px-4 py-2 bg-white text-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium shadow-sm flex items-center gap-2"
+                className={`px-4 py-2 ${theme === 'dark' ? 'bg-white text-blue-600 hover:bg-blue-50' : 'bg-white text-indigo-700 hover:bg-indigo-50'} rounded-lg transition-colors font-medium shadow-sm flex items-center gap-2`}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -786,7 +810,7 @@ function Dashboard({ saveFunctionRef, quarterId, viewMode, onBaselineUpdated }) 
               <div className="flex gap-2">
                 <button
                   onClick={handleCancelEditBaseline}
-                  className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium shadow-sm"
+                  className={`px-4 py-2 ${theme === 'dark' ? 'bg-slate-700 text-white hover:bg-slate-600' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'} rounded-lg transition-colors font-medium shadow-sm`}
                 >
                   Cancel
                 </button>
@@ -813,15 +837,23 @@ function Dashboard({ saveFunctionRef, quarterId, viewMode, onBaselineUpdated }) 
               type="checkbox"
               checked={showDiff}
               onChange={(e) => setShowDiff(e.target.checked)}
-              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              className={`w-4 h-4 rounded ${
+                theme === 'dark' 
+                  ? 'text-blue-600 focus:ring-blue-500 border-slate-600 bg-slate-700' 
+                  : 'text-indigo-600 focus:ring-indigo-500 border-slate-200 bg-white'
+              }`}
             />
-            <span className="text-sm font-medium text-gray-700">Show Changes</span>
+            <span className={`text-sm font-medium ${
+              theme === 'dark' ? 'text-slate-300' : 'text-slate-700'
+            }`}>Show Changes</span>
           </label>
         </div>
       )}
       {/* Tab Navigation */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div className="border-b border-gray-200">
+      <div className={`${
+        theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
+      } rounded-lg shadow-sm border`}>
+        <div className={theme === 'dark' ? 'border-b border-slate-700' : 'border-b border-slate-200'}>
           <nav className="flex -mb-px" aria-label="Tabs">
             {tabs.map((tab) => (
               <button
@@ -830,8 +862,10 @@ function Dashboard({ saveFunctionRef, quarterId, viewMode, onBaselineUpdated }) 
                 className={`
                   px-6 py-4 text-sm font-medium border-b-2 transition-colors
                   ${activeTab === tab
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? theme === 'dark' ? 'border-blue-500 text-blue-400' : 'border-indigo-500 text-indigo-600'
+                    : theme === 'dark'
+                    ? 'border-transparent text-slate-400 hover:text-slate-200 hover:border-slate-600'
+                    : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
                   }
                 `}
               >
@@ -945,11 +979,15 @@ function Dashboard({ saveFunctionRef, quarterId, viewMode, onBaselineUpdated }) 
 
       {/* Sticky Footer Status Bar - Only show in Overview tab */}
       {activeTab === 'Overview' && (
-        <div className="fixed bottom-0 left-64 right-0 bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-40">
+        <div className={`fixed bottom-0 left-64 right-0 ${
+          theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
+        } border-t shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-40`}>
           <div className="px-4 py-3">
             <div className="flex items-center justify-center gap-8">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-gray-700">Backend:</span>
+                <span className={`text-sm font-medium ${
+                  theme === 'dark' ? 'text-slate-300' : 'text-slate-700'
+                }`}>Backend:</span>
                 <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold ${
                   calculateBalance('backend') < 0 
                     ? 'bg-red-100 text-red-700' 
@@ -959,7 +997,9 @@ function Dashboard({ saveFunctionRef, quarterId, viewMode, onBaselineUpdated }) 
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-gray-700">Android:</span>
+                <span className={`text-sm font-medium ${
+                  theme === 'dark' ? 'text-slate-300' : 'text-slate-700'
+                }`}>Android:</span>
                 <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold ${
                   calculateBalance('android') < 0 
                     ? 'bg-red-100 text-red-700' 
@@ -969,7 +1009,9 @@ function Dashboard({ saveFunctionRef, quarterId, viewMode, onBaselineUpdated }) 
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-gray-700">iOS:</span>
+                <span className={`text-sm font-medium ${
+                  theme === 'dark' ? 'text-slate-300' : 'text-slate-700'
+                }`}>iOS:</span>
                 <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold ${
                   calculateBalance('ios') < 0 
                     ? 'bg-red-100 text-red-700' 

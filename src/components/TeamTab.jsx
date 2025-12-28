@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useTheme } from '../contexts/ThemeContext'
 
 const OWNER_OPTIONS = ['Oren', 'Shchory', 'Bar', 'Ben', 'Ohad', 'Ronen', 'Jenny', 'Aharoni', 'Rick']
 const TECH_OWNER_OPTIONS = ['Vitaly', 'Stas', 'Semyon', 'Dzimtry', 'Kirill', 'Shalom', 'Aharoni', 'Jenny']
@@ -22,33 +23,63 @@ function TeamTab({
   baselineData = null,
   showDiff = false
 }) {
-  // Team-specific styling
+  const { theme } = useTheme()
+  
+  // Team-specific styling - with theme support
   const teamConfig = {
     backend: {
       label: 'Backend',
-      bgColor: 'bg-green-100', // For Effort, Allocated, Balance columns
-      bgColorSprint: 'bg-green-200', // For Sprint columns
-      textColor: 'text-green-800',
-      borderColor: 'border-green-300'
+      bgColor: theme === 'dark' ? 'bg-emerald-900/30' : 'bg-green-100', // For Effort, Allocated, Balance columns
+      bgColorSprint: theme === 'dark' ? 'bg-emerald-900/30' : 'bg-green-100', // For Sprint columns
+      textColor: theme === 'dark' ? 'text-emerald-200' : 'text-green-800',
+      borderColor: theme === 'dark' ? 'border-emerald-700' : 'border-green-300'
     },
     android: {
       label: 'Android',
-      bgColor: 'bg-blue-100', // For Effort, Allocated, Balance columns
-      bgColorSprint: 'bg-blue-200', // For Sprint columns
-      textColor: 'text-blue-800',
-      borderColor: 'border-blue-300'
+      bgColor: theme === 'dark' ? 'bg-blue-900/30' : 'bg-blue-100', // For Effort, Allocated, Balance columns
+      bgColorSprint: theme === 'dark' ? 'bg-blue-900/30' : 'bg-blue-100', // For Sprint columns
+      textColor: theme === 'dark' ? 'text-blue-200' : 'text-blue-800',
+      borderColor: theme === 'dark' ? 'border-blue-700' : 'border-blue-300'
     },
     ios: {
       label: 'iOS',
-      bgColor: 'bg-orange-100', // For Effort, Allocated, Balance columns
-      bgColorSprint: 'bg-orange-200', // For Sprint columns
-      textColor: 'text-orange-800',
-      borderColor: 'border-orange-300'
+      bgColor: theme === 'dark' ? 'bg-amber-900/30' : 'bg-orange-100', // For Effort, Allocated, Balance columns
+      bgColorSprint: theme === 'dark' ? 'bg-amber-900/30' : 'bg-orange-100', // For Sprint columns
+      textColor: theme === 'dark' ? 'text-amber-200' : 'text-orange-800',
+      borderColor: theme === 'dark' ? 'border-amber-700' : 'border-orange-300'
     }
   }
 
   const config = teamConfig[team]
   const [showOwners, setShowOwners] = useState(false)
+  
+  // Theme-based classes
+  const textTitle = theme === 'dark' ? 'text-slate-100' : 'text-gray-900'
+  const textSubtitle = theme === 'dark' ? 'text-slate-400' : 'text-gray-600'
+  const textLabel = theme === 'dark' ? 'text-slate-300' : 'text-gray-700'
+  const bgCard = theme === 'dark' ? 'bg-slate-800' : 'bg-white'
+  const borderCard = theme === 'dark' ? 'border-slate-700' : 'border-gray-200'
+  const bgTable = theme === 'dark' ? 'bg-slate-800' : 'bg-white'
+  const bgTableHeader = theme === 'dark' ? 'bg-slate-800' : 'bg-gray-50'
+  const textTableHeader = theme === 'dark' ? 'text-slate-400' : 'text-gray-600'
+  const borderTable = theme === 'dark' ? 'border-slate-700' : 'border-gray-200'
+  const bgRowEven = theme === 'dark' ? 'bg-slate-700/30' : 'bg-gray-50/50'
+  const bgRowHover = theme === 'dark' ? 'bg-slate-700/50' : 'bg-blue-50'
+  const bgInput = theme === 'dark' ? 'bg-slate-700' : 'bg-white'
+  const textInput = theme === 'dark' ? 'text-slate-100' : 'text-gray-900'
+  const borderInput = theme === 'dark' ? 'border-slate-600' : 'border-gray-300'
+  const hoverInput = theme === 'dark' ? 'hover:bg-slate-600' : 'hover:bg-gray-50'
+  const focusInput = theme === 'dark' ? 'focus:bg-slate-600' : 'focus:bg-gray-100'
+  const placeholderInput = theme === 'dark' ? 'placeholder:text-slate-600' : 'placeholder:text-gray-400'
+  const bgDiff = theme === 'dark' ? 'bg-yellow-900/50' : 'bg-yellow-50'
+  const textDiff = theme === 'dark' ? 'text-yellow-200' : 'text-yellow-800'
+  const textTable = theme === 'dark' ? 'text-slate-300' : 'text-gray-700'
+  const textTableSecondary = theme === 'dark' ? 'text-slate-100' : 'text-gray-900'
+  const bgFooter = theme === 'dark' ? 'bg-slate-800' : 'bg-white'
+  const textFooter = theme === 'dark' ? 'text-slate-200' : 'text-gray-700'
+  const borderFooter = theme === 'dark' ? 'border-slate-700' : 'border-gray-200'
+  const bgCheckbox = theme === 'dark' ? 'bg-slate-700' : 'bg-white'
+  const borderCheckbox = theme === 'dark' ? 'border-slate-600' : 'border-gray-300'
 
   // Helper functions for diff visualization
   const getBaselineValue = (projectId, field) => {
@@ -82,8 +113,8 @@ function TeamTab({
     <div className="space-y-6 pb-20">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">{config.label} Team View</h2>
-          <p className="text-gray-600">
+          <h2 className={`text-3xl font-bold ${textTitle} mb-2`}>{config.label} Team View</h2>
+          <p className={textSubtitle}>
             Manage {config.label.toLowerCase()} projects and sprint allocations
           </p>
         </div>
@@ -93,38 +124,38 @@ function TeamTab({
               type="checkbox"
               checked={showOwners}
               onChange={(e) => setShowOwners(e.target.checked)}
-              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              className={`w-4 h-4 text-blue-600 ${borderCheckbox} rounded focus:ring-blue-500 ${bgCheckbox}`}
             />
-            <span className="text-sm text-gray-700">Show Owners</span>
+            <span className={`text-sm ${textLabel}`}>Show Owners</span>
           </label>
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <div className={`${bgCard} rounded-lg shadow-sm border ${borderCard} overflow-hidden`}>
         <div className="overflow-x-auto">
           <table className="min-w-full">
-            <thead className="bg-gray-50">
+            <thead className={bgTableHeader}>
               <tr>
-                <th className="p-0 text-left text-[11px] font-medium text-gray-600 uppercase tracking-wider sticky left-0 bg-gray-50 z-20 border-[0.5px] border-gray-200" style={{ minWidth: '300px', width: '300px' }}>
+                <th className={`p-0 text-left text-[11px] font-medium ${textTableHeader} uppercase tracking-wider sticky left-0 ${bgTableHeader} z-20 border-[0.5px] ${borderTable}`} style={{ minWidth: '300px', width: '300px' }}>
                   Epic
                 </th>
                 {showOwners && (
-                  <th className="p-0 text-left text-[11px] font-medium text-gray-600 uppercase tracking-wider border-[0.5px] border-gray-200" style={{ minWidth: '120px', width: '120px' }}>
+                  <th className={`p-0 text-left text-[11px] font-medium ${textTableHeader} uppercase tracking-wider border-[0.5px] ${borderTable}`} style={{ minWidth: '120px', width: '120px' }}>
                     Owner
                   </th>
                 )}
                 {showOwners && (
-                  <th className="p-0 text-left text-[11px] font-medium text-gray-600 uppercase tracking-wider border-[0.5px] border-gray-200" style={{ minWidth: '120px', width: '120px' }}>
+                  <th className={`p-0 text-left text-[11px] font-medium ${textTableHeader} uppercase tracking-wider border-[0.5px] ${borderTable}`} style={{ minWidth: '120px', width: '120px' }}>
                     Tech Owner
                   </th>
                 )}
-                <th className={`p-0 text-center text-[11px] font-medium text-gray-600 uppercase tracking-wider ${config.bgColor} border-[0.5px] border-gray-200`} style={{ minWidth: '90px', width: '90px' }}>
+                <th className={`p-0 text-center text-[11px] font-medium ${textTableHeader} uppercase tracking-wider ${config.bgColor} border-[0.5px] ${borderTable}`} style={{ minWidth: '90px', width: '90px' }}>
                   {config.label} Effort
                 </th>
-                <th className={`${config.bgColor} text-center text-xs font-medium text-gray-600 uppercase tracking-wider px-2 py-1`} style={{ minWidth: '100px', width: '100px' }}>
+                <th className={`${config.bgColor} text-center text-xs font-medium ${textTableHeader} uppercase tracking-wider px-2 py-1`} style={{ minWidth: '100px', width: '100px' }}>
                   Allocated
                 </th>
-                <th className={`${config.bgColor} text-center text-xs font-medium text-gray-600 uppercase tracking-wider border-r-4 border-gray-300 px-2 py-1`} style={{ minWidth: '100px', width: '100px' }}>
+                <th className={`${config.bgColor} text-center text-xs font-medium ${textTableHeader} uppercase tracking-wider border-r-4 ${theme === 'dark' ? 'border-slate-600' : 'border-gray-300'} px-2 py-1`} style={{ minWidth: '100px', width: '100px' }}>
                   Balance
                 </th>
                 {sprints.map((sprint, index) => {
@@ -134,14 +165,14 @@ function TeamTab({
                   return (
                     <th
                       key={`sprint_${sprint.id}`}
-                      className={`p-0 text-center ${isLast ? 'border-r-2 border-gray-300' : ''} ${isNegative ? 'bg-red-50' : 'bg-gray-50'} sticky top-0 z-20 border-[0.5px] border-gray-200`}
+                      className={`p-0 text-center ${isLast ? `border-r-2 ${theme === 'dark' ? 'border-slate-600' : 'border-gray-300'}` : ''} ${isNegative ? (theme === 'dark' ? 'bg-red-900/30' : 'bg-red-50') : bgTableHeader} sticky top-0 z-20 border-[0.5px] ${borderTable}`}
                       style={{ minWidth: '80px', width: '80px' }}
                     >
                       <div className="flex flex-col gap-0">
-                        <div className="text-[11px] font-medium text-gray-700 uppercase tracking-wider">
+                        <div className={`text-[11px] font-medium ${textTable} uppercase tracking-wider`}>
                           {sprint.name || 'Sprint'}
                         </div>
-                        <div className={`text-[11px] font-semibold ${isNegative ? 'text-red-600' : 'text-green-600'}`}>
+                        <div className={`text-[11px] font-semibold ${isNegative ? 'text-red-400' : 'text-green-400'}`}>
                           Bal: {balance}
                         </div>
                       </div>
@@ -150,17 +181,20 @@ function TeamTab({
                 })}
               </tr>
             </thead>
-            <tbody className="bg-white">
+            <tbody className={bgTable}>
               {projects.map((project, index) => (
-                <tr key={project.id} className={`group ${index % 2 === 1 ? 'bg-gray-50/50' : ''} hover:bg-blue-50 transition-colors border-[0.5px] border-gray-200`}>
+                <tr key={project.id} className={`group ${index % 2 === 1 ? bgRowEven : ''} ${bgRowHover} transition-colors border-[0.5px] ${borderTable}`}>
                   {/* Epic - Sticky with Move Buttons */}
-                  <td className="p-0 relative sticky left-0 bg-white z-10 border-r-2 border-gray-300 border-[0.5px] border-gray-200" style={{ minWidth: '300px', width: '300px' }}>
+                  <td className={`p-0 relative sticky left-0 ${bgTable} z-10 border-r-2 ${theme === 'dark' ? 'border-slate-600' : 'border-gray-300'} border-[0.5px] ${borderTable}`} style={{ minWidth: '300px', width: '300px' }}>
                     <div className="flex items-center">
                       <div className="flex flex-col opacity-0 group-hover:opacity-100 transition-opacity absolute left-0 z-10">
                         <button
                           onClick={() => handleMoveProject(project.id, 'up')}
                           disabled={index === 0 || isTableLocked}
-                          className={`p-0.5 ${index === 0 || isTableLocked ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:text-blue-600'}`}
+                          className={`p-0.5 ${index === 0 || isTableLocked 
+                            ? (theme === 'dark' ? 'text-slate-600' : 'text-gray-400') + ' cursor-not-allowed' 
+                            : (theme === 'dark' ? 'text-slate-400 hover:text-blue-400' : 'text-gray-500 hover:text-blue-600')
+                          }`}
                           title="Move up"
                         >
                           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -170,7 +204,10 @@ function TeamTab({
                         <button
                           onClick={() => handleMoveProject(project.id, 'down')}
                           disabled={index === projects.length - 1 || isTableLocked}
-                          className={`p-0.5 ${index === projects.length - 1 || isTableLocked ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:text-blue-600'}`}
+                          className={`p-0.5 ${index === projects.length - 1 || isTableLocked 
+                            ? (theme === 'dark' ? 'text-slate-600' : 'text-gray-400') + ' cursor-not-allowed' 
+                            : (theme === 'dark' ? 'text-slate-400 hover:text-blue-400' : 'text-gray-500 hover:text-blue-600')
+                          }`}
                           title="Move down"
                         >
                           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -181,7 +218,10 @@ function TeamTab({
                       <button
                         onClick={() => handleDeleteRow(project.id)}
                         disabled={isTableLocked}
-                        className={`opacity-0 group-hover:opacity-100 transition-opacity absolute right-2 top-1/2 -translate-y-1/2 z-10 p-0.5 ${isTableLocked ? 'text-gray-300 cursor-not-allowed' : 'text-gray-400 hover:text-red-600'}`}
+                        className={`opacity-0 group-hover:opacity-100 transition-opacity absolute right-2 top-1/2 -translate-y-1/2 z-10 p-0.5 ${isTableLocked 
+                          ? (theme === 'dark' ? 'text-slate-600' : 'text-gray-400') + ' cursor-not-allowed' 
+                          : (theme === 'dark' ? 'text-slate-500 hover:text-red-400' : 'text-gray-400 hover:text-red-600')
+                        }`}
                         title="Delete row"
                       >
                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -194,7 +234,7 @@ function TeamTab({
                           value={project.epic}
                           onChange={(e) => safeHandleCellChange(project.id, 'epic', e.target.value)}
                           disabled={isTableLocked}
-                          className={`w-full h-5 py-0 px-1 pr-8 text-[11px] leading-none bg-transparent border-0 ${isTableLocked ? 'cursor-not-allowed opacity-60' : 'hover:bg-gray-50 focus:bg-gray-100'} focus:outline-none focus:ring-0`}
+                          className={`w-full h-5 py-0 px-1 pr-8 text-[11px] leading-none ${bgInput} ${textInput} border-0 ${isTableLocked ? 'cursor-not-allowed opacity-50' : `${hoverInput} ${focusInput}`} focus:outline-none focus:ring-0`}
                           placeholder="Enter epic name"
                           style={{ paddingLeft: '20px' }}
                         />
@@ -209,16 +249,16 @@ function TeamTab({
                   
                   {/* Owner */}
                   {showOwners && (
-                    <td className="p-0 border-[0.5px] border-gray-200" style={{ minWidth: '120px', width: '120px' }}>
+                    <td className={`p-0 border-[0.5px] ${borderTable}`} style={{ minWidth: '120px', width: '120px' }}>
                       <select
                         value={project.owner}
                         onChange={(e) => safeHandleCellChange(project.id, 'owner', e.target.value)}
                         disabled={isTableLocked}
-                        className={`w-full h-5 py-0 px-1 text-[11px] leading-none bg-transparent border-0 ${isTableLocked ? 'cursor-not-allowed opacity-60' : 'hover:bg-gray-50 focus:bg-gray-100'} focus:outline-none focus:ring-0 appearance-none cursor-pointer`}
+                        className={`w-full h-5 py-0 px-1 text-[11px] leading-none ${bgInput} ${textInput} border-0 ${isTableLocked ? 'cursor-not-allowed opacity-50' : `${hoverInput} ${focusInput}`} focus:outline-none focus:ring-0 appearance-none cursor-pointer`}
                       >
-                        <option value="">Select Owner</option>
+                        <option value="" className={theme === 'dark' ? 'bg-slate-800' : 'bg-white'}>Select Owner</option>
                         {OWNER_OPTIONS.map((owner) => (
-                          <option key={owner} value={owner}>
+                          <option key={owner} value={owner} className={theme === 'dark' ? 'bg-slate-800' : 'bg-white'}>
                             {owner}
                           </option>
                         ))}
@@ -228,16 +268,16 @@ function TeamTab({
                   
                   {/* Tech Owner */}
                   {showOwners && (
-                    <td className="p-0 border-[0.5px] border-gray-200" style={{ minWidth: '120px', width: '120px' }}>
+                    <td className={`p-0 border-[0.5px] ${borderTable}`} style={{ minWidth: '120px', width: '120px' }}>
                       <select
                         value={project.techOwner}
                         onChange={(e) => safeHandleCellChange(project.id, 'techOwner', e.target.value)}
                         disabled={isTableLocked}
-                        className={`w-full h-5 py-0 px-1 text-[11px] leading-none bg-transparent border-0 ${isTableLocked ? 'cursor-not-allowed opacity-60' : 'hover:bg-gray-50 focus:bg-gray-100'} focus:outline-none focus:ring-0 appearance-none cursor-pointer`}
+                        className={`w-full h-5 py-0 px-1 text-[11px] leading-none ${bgInput} ${textInput} border-0 ${isTableLocked ? 'cursor-not-allowed opacity-50' : `${hoverInput} ${focusInput}`} focus:outline-none focus:ring-0 appearance-none cursor-pointer`}
                       >
-                        <option value="">Select Tech Owner</option>
+                        <option value="" className={theme === 'dark' ? 'bg-slate-800' : 'bg-white'}>Select Tech Owner</option>
                         {TECH_OWNER_OPTIONS.map((techOwner) => (
-                          <option key={techOwner} value={techOwner}>
+                          <option key={techOwner} value={techOwner} className={theme === 'dark' ? 'bg-slate-800' : 'bg-white'}>
                             {techOwner}
                           </option>
                         ))}
@@ -246,7 +286,7 @@ function TeamTab({
                   )}
                   
                   {/* Team Effort */}
-                  <td className={`p-0 ${config.bgColor} ${showDiff && hasValueChanged(project[team], getBaselineValue(project.id, team)) ? 'bg-yellow-50' : ''} border-[0.5px] border-gray-200`} style={{ minWidth: '90px', width: '90px' }}>
+                  <td className={`p-0 ${config.bgColor} ${showDiff && hasValueChanged(project[team], getBaselineValue(project.id, team)) ? bgDiff : ''} border-[0.5px] ${borderTable}`} style={{ minWidth: '90px', width: '90px' }}>
                     <div className="flex flex-col">
                       <input
                         type="number"
@@ -257,13 +297,13 @@ function TeamTab({
                         })()}
                         onChange={(e) => safeHandleCellChange(project.id, team, e.target.value)}
                         disabled={isTableLocked}
-                        className={`w-full h-5 py-0 px-1 text-[11px] leading-none bg-transparent border-0 ${isTableLocked ? 'cursor-not-allowed opacity-60' : 'hover:bg-gray-50 focus:bg-gray-100'} focus:outline-none focus:ring-0 text-center placeholder:text-gray-200`}
+                        className={`w-full h-5 py-0 px-1 text-[11px] leading-none bg-transparent ${textInput} border-0 ${isTableLocked ? 'cursor-not-allowed opacity-50' : `${theme === 'dark' ? 'hover:bg-slate-700/50 focus:bg-slate-700/50' : 'hover:bg-gray-50 focus:bg-gray-100'}`} focus:outline-none focus:ring-0 text-center ${placeholderInput}`}
                         placeholder="0"
                         min="0"
                         step="0.5"
                       />
                       {showDiff && hasValueChanged(project[team], getBaselineValue(project.id, team)) && (
-                        <span className="text-[9px] text-gray-500 line-through px-1">
+                        <span className={`text-[9px] ${textDiff} line-through px-1`}>
                           Was: {formatNumber(getBaselineValue(project.id, team)) || '0'}
                         </span>
                       )}
@@ -271,16 +311,16 @@ function TeamTab({
                   </td>
                   
                   {/* Allocated */}
-                  <td className={`${config.bgColor} text-center text-xs text-gray-600 px-2 py-1`} style={{ minWidth: '100px', width: '100px' }}>
+                  <td className={`${config.bgColor} text-center text-xs ${textTable} px-2 py-1`} style={{ minWidth: '100px', width: '100px' }}>
                     {calculateProjectAllocated(project, team) || 0}
                   </td>
                   
                   {/* Balance */}
-                  <td className={`${config.bgColor} text-center text-xs font-bold border-r-4 border-gray-300 px-2 py-1`} style={{ minWidth: '100px', width: '100px' }}>
+                  <td className={`${config.bgColor} text-center text-xs font-bold border-r-4 ${theme === 'dark' ? 'border-slate-600' : 'border-gray-300'} px-2 py-1`} style={{ minWidth: '100px', width: '100px' }}>
                     <span className={`${
-                      calculateProjectBalance(project, team) < 0 ? 'text-red-600' : 
-                      calculateProjectBalance(project, team) > 0 ? 'text-yellow-600' : 
-                      'text-green-600'
+                      calculateProjectBalance(project, team) < 0 ? 'text-red-400' : 
+                      calculateProjectBalance(project, team) > 0 ? 'text-yellow-400' : 
+                      'text-green-400'
                     }`}>
                       {calculateProjectBalance(project, team)}
                     </span>
@@ -294,7 +334,7 @@ function TeamTab({
                     return (
                       <td 
                         key={`sprint_${sprint.id}`} 
-                        className={`p-0 ${isLast ? 'border-r-2 border-gray-300' : ''} ${hasValue ? config.bgColorSprint : ''} ${showDiff && hasValueChanged(project[`${team}_${sprint.id}`], getBaselineValue(project.id, `${team}_${sprint.id}`)) ? 'bg-yellow-50' : ''} border-[0.5px] border-gray-200`} 
+                        className={`p-0 ${isLast ? `border-r-2 ${theme === 'dark' ? 'border-slate-600' : 'border-gray-300'}` : ''} ${showDiff && hasValueChanged(project[`${team}_${sprint.id}`], getBaselineValue(project.id, `${team}_${sprint.id}`)) ? bgDiff : (hasValue ? config.bgColorSprint : '')} border-[0.5px] ${borderTable}`} 
                         style={{ minWidth: '80px', width: '80px' }}
                       >
                         <div className="flex flex-col">
@@ -307,13 +347,13 @@ function TeamTab({
                             })()}
                             onChange={(e) => safeHandleCellChange(project.id, `${team}_${sprint.id}`, e.target.value)}
                             disabled={isTableLocked}
-                            className={`w-full h-5 py-0 px-1 text-[11px] leading-none bg-transparent border-0 ${isTableLocked ? 'cursor-not-allowed opacity-60' : 'hover:bg-gray-50 focus:bg-gray-100'} focus:outline-none focus:ring-0 text-center placeholder:text-gray-200`}
+                            className={`w-full h-5 py-0 px-1 text-[11px] leading-none bg-transparent ${textInput} border-0 ${isTableLocked ? 'cursor-not-allowed opacity-50' : `${theme === 'dark' ? 'hover:bg-slate-700/50 focus:bg-slate-700/50' : 'hover:bg-gray-50 focus:bg-gray-100'}`} focus:outline-none focus:ring-0 text-center ${placeholderInput}`}
                             placeholder="0"
                             min="0"
                             step="0.5"
                           />
                           {showDiff && hasValueChanged(project[`${team}_${sprint.id}`], getBaselineValue(project.id, `${team}_${sprint.id}`)) && (
-                            <span className="text-[9px] text-gray-500 line-through px-1">
+                            <span className={`text-[9px] ${textDiff} line-through px-1`}>
                               Was: {formatNumber(getBaselineValue(project.id, `${team}_${sprint.id}`)) || '0'}
                             </span>
                           )}
@@ -326,33 +366,33 @@ function TeamTab({
             </tbody>
             <tfoot>
               {/* Summary Row */}
-              <tr className={`bg-white font-bold border-t-[0.5px] border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]`}>
-                <td className="p-0 sticky bottom-0 left-0 bg-white z-40 border-r-2 border-gray-300 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.1)] border border-[0.5px] border-gray-200" style={{ minWidth: '300px', width: '300px' }}>
-                  <span className="text-[11px] text-gray-700 px-1">Totals</span>
+              <tr className={`${theme === 'dark' ? 'bg-slate-700' : 'bg-gray-100'} font-bold border-t-[0.5px] ${borderFooter} shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.3)]`}>
+                <td className={`p-0 sticky bottom-0 left-0 ${theme === 'dark' ? 'bg-slate-700' : 'bg-gray-100'} z-40 border-r-2 ${theme === 'dark' ? 'border-slate-600' : 'border-gray-300'} shadow-[2px_0_4px_-2px_rgba(0,0,0,0.3)] border border-[0.5px] ${borderTable}`} style={{ minWidth: '300px', width: '300px' }}>
+                  <span className={`text-[11px] ${textFooter} px-1`}>Totals</span>
                 </td>
                 {showOwners && (
-                  <td className="p-0 sticky bottom-0 bg-white z-30 border border-[0.5px] border-gray-200" style={{ minWidth: '120px', width: '120px' }}></td>
+                  <td className={`p-0 sticky bottom-0 ${theme === 'dark' ? 'bg-slate-700' : 'bg-gray-100'} z-30 border border-[0.5px] ${borderTable}`} style={{ minWidth: '120px', width: '120px' }}></td>
                 )}
                 {showOwners && (
-                  <td className="p-0 sticky bottom-0 bg-white z-30 border border-[0.5px] border-gray-200" style={{ minWidth: '120px', width: '120px' }}></td>
+                  <td className={`p-0 sticky bottom-0 ${theme === 'dark' ? 'bg-slate-700' : 'bg-gray-100'} z-30 border border-[0.5px] ${borderTable}`} style={{ minWidth: '120px', width: '120px' }}></td>
                 )}
                 
                 {/* Team Effort Total */}
-                <td className={`p-0 ${config.bgColor} text-center sticky bottom-0 z-30 border border-[0.5px] border-gray-200`} style={{ minWidth: '90px', width: '90px' }}>
-                  <span className="text-[11px] text-gray-900">{calculateTotal(team) || 0}</span>
+                <td className={`p-0 ${config.bgColor} text-center sticky bottom-0 z-30 border border-[0.5px] ${borderTable}`} style={{ minWidth: '90px', width: '90px' }}>
+                  <span className={`text-[11px] ${textTableSecondary}`}>{calculateTotal(team) || 0}</span>
                 </td>
                 
                 {/* Allocated Total */}
-                <td className={`${config.bgColor} text-center text-xs text-gray-600 px-2 py-1 sticky bottom-0 z-30`} style={{ minWidth: '100px', width: '100px' }}>
+                <td className={`${config.bgColor} text-center text-xs ${textTable} px-2 py-1 sticky bottom-0 z-30`} style={{ minWidth: '100px', width: '100px' }}>
                   {projects.reduce((sum, project) => sum + calculateProjectAllocated(project, team), 0) || 0}
                 </td>
                 
                 {/* Balance Total */}
-                <td className={`${config.bgColor} text-center text-xs font-bold border-r-4 border-gray-300 px-2 py-1 sticky bottom-0 z-30`} style={{ minWidth: '100px', width: '100px' }}>
+                <td className={`${config.bgColor} text-center text-xs font-bold border-r-4 ${theme === 'dark' ? 'border-slate-600' : 'border-gray-300'} px-2 py-1 sticky bottom-0 z-30`} style={{ minWidth: '100px', width: '100px' }}>
                   <span className={`${
-                    projects.reduce((sum, project) => sum + calculateProjectBalance(project, team), 0) < 0 ? 'text-red-600' : 
-                    projects.reduce((sum, project) => sum + calculateProjectBalance(project, team), 0) > 0 ? 'text-yellow-600' : 
-                    'text-green-600'
+                    projects.reduce((sum, project) => sum + calculateProjectBalance(project, team), 0) < 0 ? 'text-red-400' : 
+                    projects.reduce((sum, project) => sum + calculateProjectBalance(project, team), 0) > 0 ? 'text-yellow-400' : 
+                    'text-green-400'
                   }`}>
                     {projects.reduce((sum, project) => sum + calculateProjectBalance(project, team), 0) || 0}
                   </span>
@@ -368,17 +408,17 @@ function TeamTab({
                   return (
                     <td 
                       key={`footer_${sprint.id}`} 
-                      className={`p-0 ${isLast ? 'border-r-2 border-gray-300' : ''} text-center ${hasValue ? config.bgColorSprint : 'bg-white'} sticky bottom-0 z-30 border border-[0.5px] border-gray-200`} 
+                      className={`p-0 ${isLast ? `border-r-2 ${theme === 'dark' ? 'border-slate-600' : 'border-gray-300'}` : ''} text-center ${hasValue ? config.bgColorSprint : (theme === 'dark' ? 'bg-slate-700' : 'bg-gray-100')} sticky bottom-0 z-30 border border-[0.5px] ${borderTable}`} 
                       style={{ minWidth: '80px', width: '80px' }}
                     >
                       <div className="flex flex-col space-y-0">
-                        <div className="text-[11px] text-gray-500">{allocated}</div>
-                        <div className="text-[11px] text-gray-500">{capacity}</div>
-                        <div className="border-t border-gray-200 my-0"></div>
+                        <div className={`text-[11px] ${textTableHeader}`}>{allocated}</div>
+                        <div className={`text-[11px] ${textTableHeader}`}>{capacity}</div>
+                        <div className={`border-t ${theme === 'dark' ? 'border-slate-600' : 'border-gray-300'} my-0`}></div>
                         <div className={`text-[11px] font-bold ${
-                          balance < 0 ? 'text-red-600' : 
-                          balance > 0 ? 'text-green-600' : 
-                          'text-gray-900'
+                          balance < 0 ? 'text-red-400' : 
+                          balance > 0 ? 'text-green-400' : 
+                          textFooter
                         }`}>
                           {balance}
                         </div>
@@ -394,7 +434,10 @@ function TeamTab({
           <button
             onClick={handleAddRow}
             disabled={isTableLocked}
-            className={`w-8 h-8 rounded-full flex items-center justify-center shadow-sm transition-all ${isTableLocked ? 'bg-gray-400 text-gray-200 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-md'}`}
+            className={`w-8 h-8 rounded-full flex items-center justify-center shadow-sm transition-all ${isTableLocked 
+              ? (theme === 'dark' ? 'bg-slate-600 text-slate-400' : 'bg-gray-400 text-gray-200') + ' cursor-not-allowed' 
+              : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-md'
+            }`}
             title="Add New Project"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

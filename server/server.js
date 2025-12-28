@@ -37,6 +37,11 @@ const Quarter = sequelize.define('Quarter', {
     allowNull: false,
     defaultValue: {}
   },
+  baseline_data: {
+    type: DataTypes.JSON,
+    allowNull: true,
+    defaultValue: null
+  },
   isActive: {
     type: DataTypes.BOOLEAN,
     allowNull: false,
@@ -109,6 +114,88 @@ app.post('/api/quarters', async (req, res) => {
   }
 });
 
+// GET /api/quarters/active - Get the currently active quarter (must be before /:id routes)
+app.get('/api/quarters/active', async (req, res) => {
+  try {
+    const activeQuarter = await Quarter.findOne({
+      where: { isActive: true }
+    });
+    
+    if (!activeQuarter) {
+      return res.status(404).json({ error: 'No active quarter found' });
+    }
+    
+    res.json(activeQuarter);
+  } catch (error) {
+    console.error('Error fetching active quarter:', error);
+    res.status(500).json({ error: 'Failed to fetch active quarter' });
+  }
+});
+
+// POST /api/quarters/:id/baseline - Set baseline data for a quarter (must be before /:id routes)
+app.post('/api/quarters/:id/baseline', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { data } = req.body;
+    
+    const quarter = await Quarter.findByPk(id);
+    
+    if (!quarter) {
+      return res.status(404).json({ error: 'Quarter not found' });
+    }
+    
+    // If data is provided in body, use it (Edit Mode)
+    // Otherwise, copy current data to baseline_data (Snapshot Mode)
+    const baselineDataToSave = data !== undefined ? data : quarter.data;
+    
+    await quarter.update({
+      baseline_data: baselineDataToSave
+    });
+    
+    res.json({
+      id: quarter.id,
+      name: quarter.name,
+      baseline_data: quarter.baseline_data,
+      message: data !== undefined ? 'Baseline updated successfully' : 'Baseline set successfully'
+    });
+  } catch (error) {
+    console.error('Error setting baseline:', error);
+    res.status(500).json({ error: 'Failed to set baseline' });
+  }
+});
+
+// POST /api/quarters/:id/activate - Sets this quarter as active (must be before /:id routes)
+app.post('/api/quarters/:id/activate', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const quarter = await Quarter.findByPk(id);
+    
+    if (!quarter) {
+      return res.status(404).json({ error: 'Quarter not found' });
+    }
+    
+    // Set all quarters to inactive
+    await Quarter.update(
+      { isActive: false },
+      { where: {} }
+    );
+    
+    // Set this quarter as active
+    await quarter.update({ isActive: true });
+    
+    res.json({
+      id: quarter.id,
+      name: quarter.name,
+      isActive: quarter.isActive,
+      message: 'Quarter activated successfully'
+    });
+  } catch (error) {
+    console.error('Error activating quarter:', error);
+    res.status(500).json({ error: 'Failed to activate quarter' });
+  }
+});
+
 // GET /api/quarters/:id - Returns full data for a specific quarter
 app.get('/api/quarters/:id', async (req, res) => {
   try {
@@ -119,7 +206,36 @@ app.get('/api/quarters/:id', async (req, res) => {
       return res.status(404).json({ error: 'Quarter not found' });
     }
     
-    res.json(quarter);
+    // Ensure JSON fields are properly parsed
+    const response = {
+      id: quarter.id,
+      name: quarter.name,
+      isActive: quarter.isActive,
+      data: quarter.data,
+      baseline_data: quarter.baseline_data,
+      createdAt: quarter.createdAt,
+      updatedAt: quarter.updatedAt
+    };
+    
+    // If baseline_data is a string, parse it
+    if (response.baseline_data && typeof response.baseline_data === 'string') {
+      try {
+        response.baseline_data = JSON.parse(response.baseline_data);
+      } catch (e) {
+        console.error('Error parsing baseline_data:', e);
+      }
+    }
+    
+    // If data is a string, parse it
+    if (response.data && typeof response.data === 'string') {
+      try {
+        response.data = JSON.parse(response.data);
+      } catch (e) {
+        console.error('Error parsing data:', e);
+      }
+    }
+    
+    res.json(response);
   } catch (error) {
     console.error('Error fetching quarter:', error);
     res.status(500).json({ error: 'Failed to fetch quarter' });
@@ -158,56 +274,6 @@ app.put('/api/quarters/:id', async (req, res) => {
   } catch (error) {
     console.error('Error updating quarter:', error);
     res.status(500).json({ error: 'Failed to update quarter' });
-  }
-});
-
-// POST /api/quarters/:id/activate - Sets this quarter as active
-app.post('/api/quarters/:id/activate', async (req, res) => {
-  try {
-    const { id } = req.params;
-    
-    const quarter = await Quarter.findByPk(id);
-    
-    if (!quarter) {
-      return res.status(404).json({ error: 'Quarter not found' });
-    }
-    
-    // Set all quarters to inactive
-    await Quarter.update(
-      { isActive: false },
-      { where: {} }
-    );
-    
-    // Set this quarter as active
-    await quarter.update({ isActive: true });
-    
-    res.json({
-      id: quarter.id,
-      name: quarter.name,
-      isActive: quarter.isActive,
-      message: 'Quarter activated successfully'
-    });
-  } catch (error) {
-    console.error('Error activating quarter:', error);
-    res.status(500).json({ error: 'Failed to activate quarter' });
-  }
-});
-
-// GET /api/quarters/active - Get the currently active quarter
-app.get('/api/quarters/active', async (req, res) => {
-  try {
-    const activeQuarter = await Quarter.findOne({
-      where: { isActive: true }
-    });
-    
-    if (!activeQuarter) {
-      return res.status(404).json({ error: 'No active quarter found' });
-    }
-    
-    res.json(activeQuarter);
-  } catch (error) {
-    console.error('Error fetching active quarter:', error);
-    res.status(500).json({ error: 'Failed to fetch active quarter' });
   }
 });
 

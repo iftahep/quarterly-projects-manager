@@ -9,6 +9,17 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body.dark {
+  background-color: #0f172a; /* slate-900 */
+  color: #f1f5f9; /* slate-100 */
+}
+
+body.light {
+  background-color: #f8fafc; /* slate-50 */
+  color: #0f172a; /* slate-900 */
 }
 
 @keyframes slide-in {

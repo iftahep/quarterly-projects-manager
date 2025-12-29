@@ -4,6 +4,7 @@ import { quarterAPI } from '../services/api'
 import GanttModal from './GanttModal'
 import OverviewTab from './OverviewTab'
 import TeamTab from './TeamTab'
+import TechReviewTab from './TechReviewTab'
 import { useTheme } from '../contexts/ThemeContext'
 
 const OWNER_OPTIONS = ['Oren', 'Shchory', 'Bar', 'Ben', 'Ohad', 'Ronen', 'Jenny', 'Aharoni', 'Rick']
@@ -171,6 +172,9 @@ function Dashboard({ saveFunctionRef, quarterId, viewMode, onBaselineUpdated }) 
     }]
   })
 
+  // Tech Reviews state
+  const [techReviews, setTechReviews] = useState([])
+
 
   const handleAddRow = () => {
     // Prevent changes when table is locked
@@ -238,6 +242,50 @@ function Dashboard({ saveFunctionRef, quarterId, viewMode, onBaselineUpdated }) 
     setProjects(newProjects)
   }
 
+  // Tech Reviews handlers
+  const handleTechReviewChange = (id, field, value) => {
+    if (viewMode === 'BASELINE' && !isEditingBaseline) {
+      console.warn('Attempted to change tech review in locked mode. Ignoring.')
+      return
+    }
+    setTechReviews(techReviews.map(review => 
+      review.id === id ? { ...review, [field]: value } : review
+    ))
+  }
+
+  const handleAddTechReview = () => {
+    if (viewMode === 'BASELINE' && !isEditingBaseline) {
+      console.warn('Attempted to add tech review in locked mode. Ignoring.')
+      return
+    }
+    // Get Backend sprint IDs only
+    const allSprintIds = new Set([
+      ...backendSprints.map(s => s.id)
+    ])
+    
+    const newReview = {
+      id: Date.now(),
+      epic: '',
+      techLead: '',
+      // Initialize all sprint toggles to false
+      ...Array.from(allSprintIds).reduce((acc, sprintId) => {
+        acc[sprintId] = false
+        return acc
+      }, {})
+    }
+    setTechReviews([...techReviews, newReview])
+  }
+
+  const handleDeleteTechReview = (reviewId) => {
+    if (viewMode === 'BASELINE' && !isEditingBaseline) {
+      console.warn('Attempted to delete tech review in locked mode. Ignoring.')
+      return
+    }
+    if (window.confirm('Are you sure you want to delete this tech review?')) {
+      setTechReviews(techReviews.filter(review => review.id !== reviewId))
+    }
+  }
+
   const calculateTotal = (field) => {
     return projects.reduce((sum, project) => {
       const value = parseFloat(project[field]) || 0
@@ -262,7 +310,8 @@ function Dashboard({ saveFunctionRef, quarterId, viewMode, onBaselineUpdated }) 
       projects,
       backendSprints,
       androidSprints,
-      iosSprints
+      iosSprints,
+      techReviews
     }
 
     try {
@@ -398,7 +447,8 @@ function Dashboard({ saveFunctionRef, quarterId, viewMode, onBaselineUpdated }) 
       projects,
       backendSprints,
       androidSprints,
-      iosSprints
+      iosSprints,
+      techReviews
     }
 
     try {
@@ -440,6 +490,8 @@ function Dashboard({ saveFunctionRef, quarterId, viewMode, onBaselineUpdated }) 
       if (parsedBaseline.backendSprints) setBackendSprints(parsedBaseline.backendSprints)
       if (parsedBaseline.androidSprints) setAndroidSprints(parsedBaseline.androidSprints)
       if (parsedBaseline.iosSprints) setIosSprints(parsedBaseline.iosSprints)
+      if (parsedBaseline.techReviews) setTechReviews(parsedBaseline.techReviews)
+      else setTechReviews([])
       // Update baselineData state
       setBaselineData(parsedBaseline)
     }
@@ -455,6 +507,8 @@ function Dashboard({ saveFunctionRef, quarterId, viewMode, onBaselineUpdated }) 
           if (savedData.backendSprints) setBackendSprints(savedData.backendSprints)
           if (savedData.androidSprints) setAndroidSprints(savedData.androidSprints)
           if (savedData.iosSprints) setIosSprints(savedData.iosSprints)
+          if (savedData.techReviews) setTechReviews(savedData.techReviews)
+          else setTechReviews([]) // Initialize empty if not present
         }
       })
       setIsEditingBaseline(false) // Reset edit mode
@@ -510,6 +564,12 @@ function Dashboard({ saveFunctionRef, quarterId, viewMode, onBaselineUpdated }) 
         console.log('Setting ios sprints:', baselineData.iosSprints.length, 'sprints')
         setIosSprints(baselineData.iosSprints)
       }
+      if (baselineData.techReviews && Array.isArray(baselineData.techReviews)) {
+        console.log('Setting tech reviews:', baselineData.techReviews.length, 'reviews')
+        setTechReviews(baselineData.techReviews)
+      } else {
+        setTechReviews([])
+      }
     }
   }, [baselineData, viewMode, quarterId, isEditingBaseline])
 
@@ -521,7 +581,7 @@ function Dashboard({ saveFunctionRef, quarterId, viewMode, onBaselineUpdated }) 
         setBaseline: handleSetBaseline
       }
     }
-  }, [projects, backendSprints, androidSprints, iosSprints, quarterId, saveFunctionRef])
+  }, [projects, backendSprints, androidSprints, iosSprints, techReviews, quarterId, saveFunctionRef])
 
   // Sprint table handlers
   const handleAddSprint = (type) => {
@@ -542,18 +602,25 @@ function Dashboard({ saveFunctionRef, quarterId, viewMode, onBaselineUpdated }) 
         ...project,
         [`backend_${newSprint.id}`]: ''
       })))
+      // Add sprint toggle field to all tech reviews (default to false) - only for Backend sprints
+      setTechReviews(prevReviews => prevReviews.map(review => ({
+        ...review,
+        [newSprint.id]: false
+      })))
     } else if (type === 'android') {
       setAndroidSprints([...androidSprints, newSprint])
       setProjects(prevProjects => prevProjects.map(project => ({
         ...project,
         [`android_${newSprint.id}`]: ''
       })))
+      // Android sprints don't affect tech reviews
     } else if (type === 'ios') {
       setIosSprints([...iosSprints, newSprint])
       setProjects(prevProjects => prevProjects.map(project => ({
         ...project,
         [`ios_${newSprint.id}`]: ''
       })))
+      // iOS sprints don't affect tech reviews
     }
   }
 
@@ -571,6 +638,12 @@ function Dashboard({ saveFunctionRef, quarterId, viewMode, onBaselineUpdated }) 
         delete updated[`backend_${id}`]
         return updated
       }))
+      // Remove sprint toggle field from all tech reviews - only for Backend sprints
+      setTechReviews(techReviews.map(review => {
+        const updated = { ...review }
+        delete updated[id]
+        return updated
+      }))
     } else if (type === 'android') {
       setAndroidSprints(androidSprints.filter(sprint => sprint.id !== id))
       setProjects(projects.map(project => {
@@ -578,6 +651,7 @@ function Dashboard({ saveFunctionRef, quarterId, viewMode, onBaselineUpdated }) 
         delete updated[`android_${id}`]
         return updated
       }))
+      // Android sprints don't affect tech reviews
     } else if (type === 'ios') {
       setIosSprints(iosSprints.filter(sprint => sprint.id !== id))
       setProjects(projects.map(project => {
@@ -585,6 +659,7 @@ function Dashboard({ saveFunctionRef, quarterId, viewMode, onBaselineUpdated }) 
         delete updated[`ios_${id}`]
         return updated
       }))
+      // iOS sprints don't affect tech reviews
     }
   }
 
@@ -684,7 +759,7 @@ function Dashboard({ saveFunctionRef, quarterId, viewMode, onBaselineUpdated }) 
 
 
   // Tab navigation
-  const tabs = ['Overview', 'Backend', 'Android', 'iOS']
+  const tabs = ['Overview', 'Backend', 'Android', 'iOS', 'Tech Reviews']
 
   // Determine which data to display based on viewMode
   // In BASELINE view-only mode: use baselineData (read-only)
@@ -973,6 +1048,19 @@ function Dashboard({ saveFunctionRef, quarterId, viewMode, onBaselineUpdated }) 
           getSprintCapacity={getSprintCapacityDisplay}
           baselineData={diffBaselineData}
           showDiff={showDiff}
+          isTableLocked={isTableLocked}
+        />
+      )}
+
+      {activeTab === 'Tech Reviews' && (
+        <TechReviewTab
+          techReviews={viewMode === 'BASELINE' && baselineData && !isEditingBaseline 
+            ? (baselineData.techReviews || [])
+            : techReviews}
+          onTechReviewChange={handleTechReviewChange}
+          onAddTechReview={handleAddTechReview}
+          onDeleteTechReview={handleDeleteTechReview}
+          allSprints={displayBackendSprints}
           isTableLocked={isTableLocked}
         />
       )}

@@ -125,10 +125,10 @@ function OverviewTab({
   setShowGanttModal,
   isTableLocked = false,
   baselineData = null,
-  showDiff = false
+  showDiff = false,
+  showOwners = false
 }) {
   const { theme } = useTheme()
-  const [showOwners, setShowOwners] = useState(false)
 
   // Helper functions for diff visualization
   const getBaselineValue = (projectId, field) => {
@@ -231,35 +231,6 @@ function OverviewTab({
 
   return (
     <div className="space-y-6 pb-20">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className={`text-3xl font-bold ${textTitle} mb-2`}>Projects Table</h2>
-          <p className={textSubtitle}>
-            Manage quarterly projects and effort estimation
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={showOwners}
-              onChange={(e) => setShowOwners(e.target.checked)}
-              className={`w-4 h-4 text-blue-600 ${borderCheckbox} rounded focus:ring-blue-500 ${bgCheckbox}`}
-            />
-            <span className={`text-sm ${textLabel}`}>Show Owners</span>
-          </label>
-          <button
-            onClick={() => setShowGanttModal(true)}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium shadow-sm flex items-center gap-2"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
-            Show Gantt
-          </button>
-        </div>
-      </div>
-
       <div className={`${bgCard} rounded-lg shadow-sm border ${borderCard} overflow-hidden`}>
         <div className="overflow-x-auto">
           <table className="min-w-full">

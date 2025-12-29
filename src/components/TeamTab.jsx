@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { useTheme } from '../contexts/ThemeContext'
 
 const OWNER_OPTIONS = ['Oren', 'Shchory', 'Bar', 'Ben', 'Ohad', 'Ronen', 'Jenny', 'Aharoni', 'Rick']
@@ -21,7 +21,8 @@ function TeamTab({
   getSprintCapacity,
   isTableLocked = false,
   baselineData = null,
-  showDiff = false
+  showDiff = false,
+  showOwners = false
 }) {
   const { theme } = useTheme()
   
@@ -51,7 +52,6 @@ function TeamTab({
   }
 
   const config = teamConfig[team]
-  const [showOwners, setShowOwners] = useState(false)
   
   // Theme-based classes
   const textTitle = theme === 'dark' ? 'text-slate-100' : 'text-gray-900'
@@ -111,26 +111,6 @@ function TeamTab({
 
   return (
     <div className="space-y-6 pb-20">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className={`text-3xl font-bold ${textTitle} mb-2`}>{config.label} Team View</h2>
-          <p className={textSubtitle}>
-            Manage {config.label.toLowerCase()} projects and sprint allocations
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={showOwners}
-              onChange={(e) => setShowOwners(e.target.checked)}
-              className={`w-4 h-4 text-blue-600 ${borderCheckbox} rounded focus:ring-blue-500 ${bgCheckbox}`}
-            />
-            <span className={`text-sm ${textLabel}`}>Show Owners</span>
-          </label>
-        </div>
-      </div>
-
       <div className={`${bgCard} rounded-lg shadow-sm border ${borderCard} overflow-hidden`}>
         <div className="overflow-x-auto">
           <table className="min-w-full">

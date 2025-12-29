@@ -107,12 +107,7 @@ function App() {
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
-        <Header 
-          onSave={handleSave} 
-          viewMode={viewMode}
-          onSetBaseline={handleSetBaseline}
-          hasBaseline={quarterBaselines[currentQuarterId] || false}
-        />
+        <Header />
         <main className={`flex-1 overflow-y-auto ${bgMain}`}>
           {currentQuarterId ? (
             <Dashboard 
@@ -120,6 +115,8 @@ function App() {
               quarterId={currentQuarterId}
               viewMode={viewMode}
               onBaselineUpdated={loadQuarterBaselines}
+              onSave={handleSave}
+              onSetBaseline={handleSetBaseline}
             />
           ) : (
             <div className="container mx-auto px-4 py-8">

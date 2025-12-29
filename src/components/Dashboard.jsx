@@ -101,8 +101,9 @@ const SprintTable = React.memo(({ title, sprints, type, onSprintChange, onAddSpr
   )
 })
 
-function Dashboard({ saveFunctionRef, quarterId, viewMode, onBaselineUpdated }) {
+function Dashboard({ saveFunctionRef, quarterId, viewMode, onBaselineUpdated, onSave, onSetBaseline }) {
   const { theme } = useTheme()
+  const [showToast, setShowToast] = useState(false)
   // Initialize sprint capacity tables state
   const [backendSprints, setBackendSprints] = useState([
     { id: 1, name: 'Sprint 1', capacity: '' },
@@ -127,6 +128,9 @@ function Dashboard({ saveFunctionRef, quarterId, viewMode, onBaselineUpdated }) 
 
   // Tab state
   const [activeTab, setActiveTab] = useState('Overview')
+
+  // Show Owners state (for Overview tab)
+  const [showOwners, setShowOwners] = useState(false)
 
   // Baseline state
   const [baselineData, setBaselineData] = useState(null)
@@ -904,52 +908,154 @@ function Dashboard({ saveFunctionRef, quarterId, viewMode, onBaselineUpdated }) 
         </div>
       )}
 
-      {/* Show Changes Toggle - Only visible in LIVE mode if baseline exists */}
-      {viewMode === 'LIVE' && baselineData && (
-        <div className="mb-4 flex items-center justify-end gap-2">
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={showDiff}
-              onChange={(e) => setShowDiff(e.target.checked)}
-              className={`w-4 h-4 rounded ${
-                theme === 'dark' 
-                  ? 'text-blue-600 focus:ring-blue-500 border-slate-600 bg-slate-700' 
-                  : 'text-indigo-600 focus:ring-indigo-500 border-slate-200 bg-white'
-              }`}
-            />
-            <span className={`text-sm font-medium ${
-              theme === 'dark' ? 'text-slate-300' : 'text-slate-700'
-            }`}>Show Changes</span>
-          </label>
-        </div>
-      )}
-      {/* Tab Navigation */}
+      {/* Unified Toolbar: Tabs + Action Controls */}
       <div className={`${
-        theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
-      } rounded-lg shadow-sm border`}>
-        <div className={theme === 'dark' ? 'border-b border-slate-700' : 'border-b border-slate-200'}>
-          <nav className="flex -mb-px" aria-label="Tabs">
-            {tabs.map((tab) => (
+        theme === 'dark' ? 'bg-slate-800' : 'bg-white'
+      } border-b ${theme === 'dark' ? 'border-slate-700' : 'border-slate-200'} px-4 py-2 flex items-center justify-between`}>
+        {/* Left Side: Navigation Tabs */}
+        <nav className="flex -mb-px" aria-label="Tabs">
+          {tabs.map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`
+                px-4 py-2 text-sm font-medium border-b-2 transition-colors
+                ${activeTab === tab
+                  ? theme === 'dark' ? 'border-blue-500 text-blue-400' : 'border-indigo-500 text-indigo-600'
+                  : theme === 'dark'
+                  ? 'border-transparent text-slate-400 hover:text-slate-200 hover:border-slate-600'
+                  : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+                }
+              `}
+            >
+              {tab}
+            </button>
+          ))}
+        </nav>
+
+        {/* Right Side: Action Controls */}
+        <div className="flex items-center gap-3">
+          {/* View Toggles */}
+          <div className="flex items-center gap-3">
+            {/* Show Changes - Only visible in LIVE mode if baseline exists */}
+            {viewMode === 'LIVE' && baselineData && (
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={showDiff}
+                  onChange={(e) => setShowDiff(e.target.checked)}
+                  className={`w-4 h-4 rounded ${
+                    theme === 'dark' 
+                      ? 'text-blue-600 focus:ring-blue-500 border-slate-600 bg-slate-700' 
+                      : 'text-indigo-600 focus:ring-indigo-500 border-slate-200 bg-white'
+                  }`}
+                />
+                <span className={`text-sm font-medium ${
+                  theme === 'dark' ? 'text-slate-300' : 'text-slate-700'
+                }`}>Show Changes</span>
+              </label>
+            )}
+
+            {/* Show Owners - Visible in Overview and Team tabs */}
+            {(activeTab === 'Overview' || activeTab === 'Backend' || activeTab === 'Android' || activeTab === 'iOS') && (
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={showOwners}
+                  onChange={(e) => setShowOwners(e.target.checked)}
+                  className={`w-4 h-4 rounded ${
+                    theme === 'dark' 
+                      ? 'text-blue-600 focus:ring-blue-500 border-slate-600 bg-slate-700' 
+                      : 'text-indigo-600 focus:ring-indigo-500 border-slate-200 bg-white'
+                  }`}
+                />
+                <span className={`text-sm font-medium ${
+                  theme === 'dark' ? 'text-slate-300' : 'text-slate-700'
+                }`}>Show Owners</span>
+              </label>
+            )}
+          </div>
+
+          {/* Vertical Separator - Show if there are view toggles and action buttons */}
+          {viewMode === 'LIVE' && (
+            <div className={`h-6 border-l ${theme === 'dark' ? 'border-slate-600' : 'border-slate-300'}`} />
+          )}
+
+          {/* Action Buttons */}
+          <div className="flex items-center gap-2">
+            {/* Gantt Chart Button - Only visible in Overview tab */}
+            {activeTab === 'Overview' && (
               <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`
-                  px-6 py-4 text-sm font-medium border-b-2 transition-colors
-                  ${activeTab === tab
-                    ? theme === 'dark' ? 'border-blue-500 text-blue-400' : 'border-indigo-500 text-indigo-600'
-                    : theme === 'dark'
-                    ? 'border-transparent text-slate-400 hover:text-slate-200 hover:border-slate-600'
-                    : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
-                  }
-                `}
+                onClick={() => setShowGanttModal(true)}
+                className={`px-3 py-1.5 rounded-lg transition-colors font-medium shadow-sm flex items-center gap-1.5 text-sm ${
+                  theme === 'dark'
+                    ? 'bg-indigo-600 text-white hover:bg-indigo-700'
+                    : 'bg-indigo-600 text-white hover:bg-indigo-700'
+                }`}
+                title="Show Gantt Chart"
               >
-                {tab}
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                <span>Gantt</span>
               </button>
-            ))}
-          </nav>
+            )}
+
+            {/* Set Baseline Button - Only in LIVE mode */}
+            {viewMode === 'LIVE' && (
+              <button
+                onClick={onSetBaseline}
+                className={`px-3 py-1.5 rounded-lg transition-colors font-medium shadow-sm flex items-center gap-1.5 text-sm ${
+                  theme === 'dark'
+                    ? 'bg-slate-700 text-slate-200 border border-slate-600 hover:bg-slate-600'
+                    : 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50'
+                }`}
+                title="Set Baseline"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                </svg>
+                <span>Set Baseline</span>
+              </button>
+            )}
+
+            {/* Save Changes Button - Only in LIVE mode */}
+            {viewMode === 'LIVE' && (
+              <button
+                onClick={() => {
+                  if (onSave && onSave()) {
+                    setShowToast(true)
+                    setTimeout(() => {
+                      setShowToast(false)
+                    }, 3000)
+                  }
+                }}
+                className={`px-3 py-1.5 rounded-lg transition-colors font-medium shadow-sm flex items-center gap-1.5 text-sm ${
+                  theme === 'dark'
+                    ? 'bg-indigo-600 text-white hover:bg-indigo-700'
+                    : 'bg-indigo-600 text-white hover:bg-indigo-700'
+                }`}
+                title="Save Changes"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <span>Save</span>
+              </button>
+            )}
+          </div>
         </div>
       </div>
+
+      {/* Toast Notification */}
+      {showToast && (
+        <div className="fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center gap-2 animate-slide-in">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+          <span className="font-medium">Data saved successfully!</span>
+        </div>
+      )}
 
       {/* Tab Content */}
       {activeTab === 'Overview' && (
@@ -983,6 +1089,7 @@ function Dashboard({ saveFunctionRef, quarterId, viewMode, onBaselineUpdated }) 
           baselineData={diffBaselineData}
           showDiff={showDiff}
           isTableLocked={isTableLocked}
+          showOwners={showOwners}
         />
       )}
 

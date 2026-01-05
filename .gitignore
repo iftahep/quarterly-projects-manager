@@ -16,6 +16,9 @@ dist-ssr
 server/database.sqlite
 server/database.sqlite-journal
 
+# CSV files
+src/components/*.csv
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
